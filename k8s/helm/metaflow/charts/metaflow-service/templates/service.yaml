@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "metaflow-service.fullname" . }}
+  labels:
+    {{- include "metaflow-service.labels" . | nindent 4 }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - name: metadata
+      port: {{ .Values.service.port }}
+      protocol: TCP
+      targetPort: 8080
+    - name: upgrades
+      port: 8082
+      protocol: TCP
+      targetPort: 8082
+  selector:
+    {{- include "metaflow-service.selectorLabels" . | nindent 4 }}

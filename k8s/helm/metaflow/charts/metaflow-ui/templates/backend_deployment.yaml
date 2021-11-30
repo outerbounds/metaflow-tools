@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "metaflow-ui.fullname" . }}
+  labels:
+    {{- include "metaflow-ui.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "metaflow-ui.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "metaflow-ui.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "metaflow-ui.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/opt/latest/bin/python3", "-m", "services.ui_backend_service.ui_server" ]
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8083
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /api/ping
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /api/ping
+              port: http
+          {{- with .Values.envFrom }}
+          envFrom:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          env:
+            {{- range .Values.env }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+            {{- end }}
+            - name: UI_ENABLED
+              value: "1"
+            - name: PATH_PREFIX
+              value: "/api"
+            - name: MF_DATASTORE_ROOT
+              value: {{ .Values.METAFLOW_DATASTORE_SYSROOT_S3 | quote }}
+            - name: METAFLOW_DATASTORE_SYSROOT_S3
+              value: {{ .Values.METAFLOW_DATASTORE_SYSROOT_S3 | quote }}
+            - name: LOGLEVEL
+              value: "DEBUG"
+            - name: METAFLOW_SERVICE_URL
+              value: "http://localhost:8083/api/metadata"
+            - name: METAFLOW_DEFAULT_DATASTORE
+              value: "s3"
+            - name: METAFLOW_DEFAULT_METADATA
+              value: "service"
+            {{- include "metaflow-ui.metadatadbEnvVars" . | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

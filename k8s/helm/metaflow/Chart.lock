@@ -1,0 +1,12 @@
+dependencies:
+- name: metaflow-service
+  repository: ""
+  version: 0.1.0
+- name: metaflow-ui
+  repository: ""
+  version: 0.1.0
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.13.4
+digest: sha256:ed1d53f386d5f9a305d526737c854a92782fc6a2ef7725295de04853c0679ad4
+generated: "2021-11-05T16:00:15.003107-07:00"
