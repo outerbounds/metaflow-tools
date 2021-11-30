@@ -1,6 +1,6 @@
 # Metaflow Admin Tools
 
-Tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow's documentation](https://docs.metaflow.org) for more information.
+Catch-all git repo that contains various tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow's documentation](https://docs.metaflow.org) for more information.
 
 The tools in this repo include:
 
