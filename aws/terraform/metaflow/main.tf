@@ -10,7 +10,7 @@ module "common_vars" {
 }
 
 module "metaflow" {
-  source = "../modules/metaflow"
+  source = "github.com/outerbounds/terraform-aws-metaflow"
 
   resource_prefix = local.resource_prefix
   resource_suffix = local.resource_suffix
