@@ -1,59 +1,58 @@
+# Complete Metaflow Terraform Example
+
+This directory contains a set of Terraform configuration files for deploying a complete, end-to-end set of resources for running Metaflow on AWS using Terraform modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow). 
+
+This repo only contains configuration for non-Metaflow-specific resources, such as AWS VPC infra and Sagemaker notebook instance; Metaflow-specific parts are provided by reusable modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow).
+
 ## Pre-requisites
 
 ### Terraform
 
-[Download](https://www.terraform.io/downloads.html) and install terraform 0.14.x.
+[Download](https://www.terraform.io/downloads.html) and install terraform 0.14.x or later.
 
 ### AWS
 
-AWS should be [configured](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) with a profile. The `AWS_PROFILE` environment should be set to the profile that has been configured.
-
-The [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) can be used as follows to
-confirm that it has been configured properly by running:
-
-```
-aws sts get-caller-identity
-```
-
-which should output your account information.
+AWS credentials should be [configured](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) in your environment.
 
 ## Setup
 
 ### Infrastructure stack
 
-The infra sub-project provides some pre-requisite infrastructure for the Metaflow service. For more details see the [README](aws/terraform/infra/README.md)
+The infra sub-project provides example networking infrastructure for the Metaflow service. For more details see the [README](aws/terraform/infra/README.md)
 
 Copy `example.tfvars` to `prod.tfvars` (or whatever environment name you prefer) and update that `env` name and the `region` as needed. These variables are used to construct unique names for infrastructure resources.
 
-Initialize the terraform:
+To deploy, initialize Terraform:
 
-`cd infra && terraform init`
-
-Apply it:
-
+```bash
+cd infra && terraform init
 ```
+
+Apply the configuration:
+
+```bash
 terraform apply --var-file prod.tfvars
 ```
 
 ### Metaflow stack
 
-The metaflow sub-project provisions the metadata API, AWS Step Functions, and an AWS Batch queue. For more details see the
-[README](aws/terraform/metaflow/README.md)
+The metaflow sub-project uses modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow) to provision the Metaflow service, AWS Step Functions, and AWS Batch resources. 
 
 Copy `example.tfvars` to `prod.tfvars` (or whatever environment name you prefer) and update that `env` name and the `region` as needed. These variables are used to construct unique names for infrastructure resources.
 
-Protecting the Metadata API:
-By default, the Metadata API has basic authentication enabled (recommended), but it is exposed to the public internet via Amazon API Gateway. To further restrict access to the API, the `access_list_cidr_blocks` can be set to specify IPs or network cidr blocks that are allowed to access the endpoint, blocking all other access.
+#### Securing the Metadata API (optional)
 
-Additionally:
-* There are variables which govern the compute environment associated with the AWS Batch queue that can be adjusted based on needs.
-* The `enable_step_functions` flag can be set to false to not provision the AWS Step Functions infrastructure.
+By default, the Metadata API has basic authentication enabled, but it is exposed to the public internet via Amazon API Gateway. To further restrict access to the API, the `access_list_cidr_blocks` can be set to specify IPs or network cidr blocks that are allowed to access the endpoint, blocking all other access.
 
-Initialize the terraform:
+Additionally, the `enable_step_functions` flag can be set to false to not provision the AWS Step Functions infrastructure.
 
-`cd metaflow && terraform init`
+To deploy, initialize Terraform:
 
-Apply it:
+```bash
+cd metaflow && terraform init
+```
+
+Apply the configuration:
 
 ```
 terraform apply --var-file prod.tfvars
@@ -61,9 +60,9 @@ terraform apply --var-file prod.tfvars
 
 Once the Terraform executes, configure Metaflow using `metaflow configure import ./metaflow_config_<env>_<region>.json`
 
-### Custom Default Batch Image
+### Using a custom container image for AWS Batch (optional)
 
-A custom default batch image can be used by setting the variable `enable_custom_batch_container_registry` to `true`. This will provision an Amazon ECR registry, and the generated Metaflow AWS Batch configuration will have `METAFLOW_BATCH_CONTAINER_IMAGE` and `METAFLOW_BATCH_CONTAINER_REGISTRY` set to the Amazon ECR repository. The Metaflow AWS Batch image must then be pushed into the repository before the first flow can be executed.
+A custom container image can be used by setting the variable `enable_custom_batch_container_registry` to `true`. This will provision an Amazon ECR registry, and the generated Metaflow configuration will have `METAFLOW_BATCH_CONTAINER_IMAGE` and `METAFLOW_BATCH_CONTAINER_REGISTRY` set to point to the private Amazon ECR repository. The container image must then be pushed into the repository before the first flow can be executed.
 
 To do this, first copy the output of `metaflow_batch_container_image`.
 
@@ -90,17 +89,17 @@ Push the image:
 docker push <ecr-repository-name>
 ```
 
-### Amazon Sagemaker Notebook stack
+### Amazon Sagemaker Notebook Infrastructure (optional)
 
 The sagemaker-notebook subproject provisions an optional Jupyter notebook with access to the Metaflow API.
 
 Copy `example.tfvars` to `prod.tfvars` (or whatever environment name you prefer) and update that `env` name and the `region` as needed. These variables are used to construct unique names for infrastructure resources.
 
-Initialize the terraform:
+To deploy, initialize Terraform:
 
 `cd sagemaker-notebook && terraform init`
 
-Apply it:
+Apply the configuration:
 
 ```
 terraform apply --var-file prod.tfvars
