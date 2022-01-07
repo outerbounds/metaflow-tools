@@ -18,7 +18,7 @@ We provide a collection of configurable Terraform modules for teams that use Ter
 
 # Metaflow on K8S
 
-### [Helm Charts](./k8s/helm/metaflow)
+### [Helm Charts](./k8s/helm/metaflow) (alpha)
 We provide a couple of Helm charts to deploy Metaflow Metadata service and UI in a K8S cluster.
 
 
