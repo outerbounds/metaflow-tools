@@ -43,22 +43,25 @@ Once complete, you'll find an "Outputs" tab that contains values for the compone
 
 Did you choose to enable "APIBasicAuth" and/or "CustomRole" and are wondering how they work?  Then you're in the right place!  Below are some details on what happens when those features are enabled and how to make use of them.
 
-- **APIBasicAuth** - In addition to TLS termination, Amazon API Gateway provides the ability to generate an API key that restricts access only to requests that pass that API key in the 'x-api-key' HTTP header.  This is useful in that it restricts access to flow information from the general Internet while still allowing remote connectivity to authenticated clients.  However, enabling this feature means that you'll need to request the API Key from Amazon API Gateway, as exposing a credential as an output from CloudFormation is a potential security problem.  CloudFormation does, however, output the ID of the API Key that correlates to your stack, making is easy to get the key and pass it to Metaflow.  Follow one of the two instructions below to output the key, and then export it to the `METAFLOW_SERVICE_AUTH_KEY` environment variable.
+- **APIBasicAuth** - In addition to TLS termination, Amazon API Gateway provides the ability to authenticate requests to Metaflow Metadata Service using an API key. Note that for security reasons, CloudFormation doesn't include the key itself in the output. CloudFormation only outputs *the ID of the API Key* for your stack.  Follow one of the two instructions below to output the key, and then export it to the `METAFLOW_SERVICE_AUTH_KEY` environment variable.
 
     1. From the AWS CLI, run the following: `aws apigateway get-api-key --api-key <YOUR_KEY_ID_FROM_CFN> --include-value | grep value`
     2. From the AWS Console, navigate to "Services" and select "API Gateway" from "Networking & Content Delivery" (or search for it in the search bar).  Click your API, select "API Keys" from the left side, select the API that corresponds to your Stack name, and click "show" next to "API Key".
 
 - **CustomRole** - This template can create an optional role that can be assumed by users (or applications) that includes limited permissions to only the resources required by Metaflow, including access only to the Amazon S3 bucket, AWS Batch Compute Environment, and Amazon Sagemaker Notebook Instance created by this template.  You will, however, need to modify the trust policy for the role to grant access to the principals (users/roles/accounts) who will assume it, and you'll also need to have your users configure an appropriate role-assumption profile.  The ARN of the Custom Role can be found in the "Output" tab of the CloudFormation stack under `MetaflowUserRoleArn`.  To modify the trust policy to allow new principals, follow the directions [here](https://docs.aws.amazon.com/IAM/latest/UserGuide/roles-managingrole-editing-console.html#roles-managingrole_edit-trust-policy).  Once you've granted access to the principals of your choice, have your users create a new Profile for the AWS CLI that assumes the role ARN by following the directions [here](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-role.html).
 
-### Optional Metaflow User Interface (`EnableUI` -parameter)
+### Optional Metaflow User Interface (`EnableUI`)
 
-Please note: This section can be ignored if `EnableUI` -parameter is disabled (this is the default value).
+Please note: This section can be ignored if `EnableUI` is set to false (this is the default value).
 
-User Interface is provided as part of the `metaflow-cfn-template.yml` template and doesn't require any additional
-configuration besides enabling the `EnableUI` -parameter. You can follow the [AWS CloudFormation Deployment](https://admin-docs.metaflow.org/metaflow-on-aws/deployment-guide/aws-cloudformation-deployment#steps-for-aws-cloudformation-deployment) instructions.
+This template deploys the UI with authentication using Amazon Cognito. For Cognito to work, you'll need to provide a DNS name and SSL certificate from AWS ACM. That means you'll need a few additional steps if using the UI:
 
-Once deployed the Cloudformation Stack will provide two outputs:
-- `UIServiceUrl` - Application Load Balancer endpoint
-- `UIServiceCloudfrontUrl` - Cloudfront distribution (using ALB) endpoint with HTTPS enabled (preferred)
-
-Please note: Metaflow User Interface doesn't provide any authentication by default.
+1. Figure out what DNS name to use, that you have control of. You can either register a new domain name, or create a subdomain. 
+2. Generate and verify a SSL certificate valid for that name using AWS ACM. Follow [the instructions from AWS](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html) for this.
+3. Deploy this Cloudformation template. You'll need to set `EnableUI` to "true", and in addition to this:
+    - set `PublicDomainName` to the domain name you chose
+    - set `CertificateArn` to the certificate ARN from step 2 above
+4. After Cloudformation template is deployed, make note of `LoadBalancerUIDNSName` output value. You'll need to modify  DNS settings to point your domain name to that name.
+    * If you're using Route53, create an A record that is an Alias and choose the load balancer from the drop down. 
+    * If using a different DNS management tool/registrar, create a CNAME record that points to `LoadBalancerUIDNSName`
+5. After DNS changes propagate, you should be able to navigate to the DNS name in your browser and see a login prompt. To create a user, go to AWS Console -> Cognito -> User Pools, find the pool that corresponds to this stack and create a new user under "Users and Groups".
