@@ -1,8 +1,6 @@
-# Metaflow Admin Tools
+# ⚒️ Metaflow Admin Tools
 
-This repository contains various configuration files, tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow documentation](https://docs.metaflow.org) for more information about Metaflow architecture.
-
-The tools included in this repo include:
+This repository contains various configuration files, tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow documentation](https://docs.metaflow.org) for more information about Metaflow architecture. The tools included in this repo include:
 
 ## Metaflow Cloudformation template
 
@@ -16,3 +14,6 @@ We provide a collection of configurable Terraform modules for teams that use Ter
 We provide Helm charts to deploy Metaflow Metadata service and UI in a K8S cluster. This way you can use Metaflow without any AWS-specific dependencies on AWS except for having a S3-compatible object storage engine available. You can find them under [k8s/helm/metaflow](./k8s/helm/metaflow) in this repository.
 
 
+# Questions?
+
+Talk to us on [Slack](http://http://slack.outerbounds.co/).
