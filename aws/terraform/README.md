@@ -18,7 +18,7 @@ AWS credentials should be [configured](https://docs.aws.amazon.com/cli/latest/us
 
 ### Infrastructure stack
 
-The infra sub-project provides example networking infrastructure for the Metaflow service. For more details see the [README](aws/terraform/infra/README.md)
+The infra sub-project provides example networking infrastructure for the Metaflow service. For more details see the [README](infra/README.md)
 
 Copy `example.tfvars` to `prod.tfvars` (or whatever environment name you prefer) and update that `env` name and the `region` as needed. These variables are used to construct unique names for infrastructure resources.
 
