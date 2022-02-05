@@ -851,6 +851,109 @@ Resources:
                 Condition:
                   "Null":
                     events:source: true
+  MetaflowUserPolicy:
+    Condition: 'EnableRole'
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action:
+              - "cloudformation:DescribeStacks"
+              - "cloudformation:*Stack"
+              - "cloudformation:*ChangeSet"
+            Resource:
+              - !Sub "arn:${IAMPartition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}-*"
+          - Effect: "Allow"
+            Action:
+              - "s3:*Object"
+            Resource:
+              - !GetAtt 'MetaflowS3Bucket.Arn'
+              - !Join ['', [ !GetAtt 'MetaflowS3Bucket.Arn', '/*' ]]
+          - Effect: "Allow"
+            Action:
+              - "sagemaker:DescribeNotebook*"
+              - "sagemaker:StartNotebookInstance"
+              - "sagemaker:StopNotebookInstance"
+              - "sagemaker:UpdateNotebookInstance"
+              - "sagemaker:CreatePresignedNotebookInstanceUrl"
+            Resource:
+              - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance/${AWS::StackName}-*"
+              - !Sub "arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:notebook-instance-lifecycle-config/basic*"
+          - Effect: "Allow"
+            Action:
+              - "iam:PassRole"
+            Resource:
+              - !Sub "arn:${IAMPartition}:iam::${AWS::AccountId}:role/${AWS::StackName}-*"
+          - Effect: "Allow"
+            Action:
+              - "kms:Decrypt"
+              - "kms:Encrypt"
+            Resource:
+              - !Sub "arn:${IAMPartition}:kms:${AWS::Region}:${AWS::AccountId}:key/"
+          - Sid: JobsPermissions
+            Effect: Allow
+            Action:
+              - "batch:TerminateJob"
+              - "batch:DescribeJobs"
+              - "batch:DescribeJobDefinitions"
+              - "batch:DescribeJobQueues"
+              - "batch:RegisterJobDefinition"
+              - "batch:DescribeComputeEnvironments"
+            Resource: '*'
+          - Sid: DefinitionsPermissions
+            Effect: Allow
+            Action:
+              - "batch:SubmitJob"
+            Resource:
+              - !Ref "JobQueue"
+              - !Sub arn:${IAMPartition}:batch:${AWS::Region}:${AWS::AccountId}:job-definition/*:*
+          - Sid: BucketAccess
+            Effect: Allow
+            Action: s3:ListBucket
+            Resource: !GetAtt 'MetaflowS3Bucket.Arn'
+          - Sid: GetLogs
+            Effect: Allow
+            Action: logs:GetLogEvents
+            Resource: !Sub arn:${IAMPartition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:log-stream:*
+          - Sid: AllowSagemakerCreate
+            Effect: Allow
+            Action: sagemaker:CreateTrainingJob
+            Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
+          - Sid: AllowSagemakerDescribe
+            Effect: Allow
+            Action: sagemaker:DescribeTrainingJob
+            Resource: !Sub arn:${IAMPartition}:sagemaker:${AWS::Region}:${AWS::AccountId}:training-job/*
+          - Sid: TasksAndExecutionsGlobal
+            Effect: Allow
+            Action:
+              - "states:ListStateMachines"
+            Resource: '*'
+          - Sid: StateMachines
+            Effect: Allow
+            Action:
+              - "states:DescribeStateMachine"
+              - "states:UpdateStateMachine"
+              - "states:StartExecution"
+              - "states:CreateStateMachine"
+              - "states:ListExecutions"
+              - "states:StopExecution"
+            Resource: !Sub 'arn:${IAMPartition}:states:${AWS::Region}:${AWS::AccountId}:stateMachine:*'
+          - Sid: RuleMaintenance
+            Effect: Allow
+            Action:
+              - "events:PutTargets"
+              - "events:DisableRule"
+            Resource: !Sub "arn:${IAMPartition}:events:${AWS::Region}:${AWS::AccountId}:rule/*"
+          - Sid: PutRule
+            Effect: Allow
+            Action:
+              - "events:PutRule"
+            Resource: !Sub "arn:${IAMPartition}:events:${AWS::Region}:${AWS::AccountId}:rule/*"
+            Condition:
+              "Null":
+                events:source: true
   EventBridgeRole:
     Type: AWS::IAM::Role
     Properties:
