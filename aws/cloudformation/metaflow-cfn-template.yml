@@ -77,8 +77,15 @@ Parameters:
     Type: String
     Default: 'false'
     AllowedValues: ['false', 'true']
-    Description: 'Enable Metaflow UI'
-
+    Description: 'Enable Metaflow UI. Make sure to specify PublicDomainName and CertificateArn if you do.'
+  PublicDomainName:
+    Type: 'String'
+    Default: ''
+    Description: 'The custom domain name for UI (e.g., ui.outerbounds.co). Has to match the certificate. Required if UI is enabled.'
+  CertificateArn:
+    Default: ''
+    Type: 'String'
+    Description: 'The ARN of a ACM certificate valid for the custom domain name. Required if UI is enabled.'
 Mappings:
   ServiceInfo:
     StackName:
@@ -101,8 +108,9 @@ Mappings:
       value: 1
     Role:
       value: ""
-
-  ServiceInfoUI:
+  ServiceInfoUIService:
+    StackName:
+      value: 'metaflow-infrastructure'
     ServiceName:
       value: 'metaflow-ui-service'
     ImageUrl:
@@ -113,9 +121,35 @@ Mappings:
       value: 4096
     ContainerMemory:
       value: 16384
+    Path:
+      value: '*'
+    Priority:
+      value: 1
     DesiredCount:
       value: 1
-
+    Role:
+      value: ""
+  ServiceInfoUIStatic:
+    StackName:
+      value: 'metaflow-infrastructure'
+    ServiceName:
+      value: 'metadata-ui-static'
+    ImageUrl:
+      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.0.1'
+    ContainerPort:
+      value: 3000
+    ContainerCpu:
+      value: 512
+    ContainerMemory:
+      value: 1024
+    Path:
+      value: '*'
+    Priority:
+      value: 1
+    DesiredCount:
+      value: 1
+    Role:
+      value: ""
 Conditions:
   EnableAuth: !Equals [ !Ref APIBasicAuth, 'true']
   EnableRole: !Equals [ !Ref CustomRole, 'true']
@@ -215,6 +249,14 @@ Resources:
       GroupId: !Ref 'FargateSecurityGroup'
       IpProtocol: -1
       SourceSecurityGroupId: !Ref 'FargateSecurityGroup'
+  FargateAlbRule:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: EnableUI
+    Properties:
+      Description: Internal Communication
+      GroupId: !Ref 'FargateSecurityGroup'
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref 'LoadBalancerSecurityGroupUI'
   NLB:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -1489,152 +1531,96 @@ Resources:
 
 # --- Metaflow UI resources begin ---
 
-  # UI: Ingress rules
-
-  IngressRuleUIService:
-    Type: AWS::EC2::SecurityGroupIngress
+  LoadBalancerUI:
+    Type: 'AWS::ElasticLoadBalancingV2::LoadBalancer'
     Condition: EnableUI
     Properties:
-      Description: "Allow API Calls Internally (UI service)"
-      GroupId: !Ref FargateSecurityGroup
-      IpProtocol: tcp
-      FromPort: !FindInMap ["ServiceInfoUI", "ContainerPort", "value"]
-      ToPort: !FindInMap ["ServiceInfoUI", "ContainerPort", "value"]
-      CidrIp: !GetAtt 'VPC.CidrBlock'
-
-  # UI: Load balancer
-
-  ALBUISecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Condition: EnableUI
-    Properties:
-      GroupDescription: "Access to the public facing load balancer"
-      VpcId: !Ref VPC
-      SecurityGroupIngress:
-        # Allow access to ALB from anywhere on the internet
-        - CidrIp: 0.0.0.0/0
-          IpProtocol: -1
-  ALBUI:
-    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
-    Condition: EnableUI
-    Properties:
-      Scheme: internet-facing
-      Type: application
+      SecurityGroups:
+      - !Ref LoadBalancerSecurityGroupUI
       Subnets:
         - !Ref Subnet1
         - !Ref Subnet2
-      SecurityGroups: [!Ref ALBUISecurityGroup]
-  ALBUIListener:
-    Type: AWS::ElasticLoadBalancingV2::Listener
+      Type: application
+  ListenerUI:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Condition: EnableUI
     DependsOn:
-      - ALBUI
+      - LoadBalancerUI
     Properties:
-      DefaultActions:
-        - TargetGroupArn: !Ref ALBUITargetGroupUIService
-          Type: "forward"
-      LoadBalancerArn: !Ref ALBUI
-      Port: 80
-      Protocol: HTTP
-  ALBUITargetGroupUIService:
-    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+      Certificates:
+      - CertificateArn: !Ref CertificateArn
+      DefaultActions: # 1. Authenticate against Cognito User Pool
+      - Type: 'authenticate-cognito'
+        AuthenticateCognitoConfig:
+          OnUnauthenticatedRequest: 'authenticate' # Redirect unauthenticated clients to Cognito login page
+          Scope: 'openid'
+          UserPoolArn: !GetAtt 'UserPoolUI.Arn'
+          UserPoolClientId: !Ref UserPoolClientUI
+          UserPoolDomain: !Ref UserPoolDomainUI
+        Order: 1
+      - Type: forward # 2. Forward request to target group (e.g., EC2 instances)
+        TargetGroupArn: !Ref ALBTargetGroupUIStatic
+        Order: 100
+      LoadBalancerArn: !Ref LoadBalancerUI
+      Port: 443
+      Protocol: 'HTTPS'
+  ListenerRuleUIService:
+    Type: 'AWS::ElasticLoadBalancingV2::ListenerRule'
     Condition: EnableUI
     Properties:
-      HealthCheckIntervalSeconds: 6
-      HealthCheckPath: /ping
-      HealthCheckProtocol: HTTP
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 2
+      ListenerArn: !Ref ListenerUI
+      Priority: 2
+      Actions:
+        - Type: 'authenticate-cognito'
+          AuthenticateCognitoConfig:
+            OnUnauthenticatedRequest: 'authenticate' # Redirect unauthenticated clients to Cognito login page
+            Scope: 'openid'
+            UserPoolArn: !GetAtt 'UserPoolUI.Arn'
+            UserPoolClientId: !Ref UserPoolClientUI
+            UserPoolDomain: !Ref UserPoolDomainUI
+          Order: 1
+        - Type: forward # 2. Forward request to target group (e.g., EC2 instances)
+          TargetGroupArn: !Ref ALBUITargetGroupUIService
+          Order: 2
+      Conditions:
+        - Field: path-pattern
+          PathPatternConfig:
+            Values:
+              - "/api/*"
+  ALBTargetGroupUIStatic:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Condition: EnableUI
+    Properties:
+      Port:  !FindInMap ['ServiceInfoUIStatic', 'ContainerPort', 'value']
+      Protocol: HTTP
       TargetType: ip
-      Port: !FindInMap ["ServiceInfoUI", "ContainerPort", "value"]
-      Protocol: HTTP
-      UnhealthyThresholdCount: 2
-      VpcId: !Ref VPC
-
-  # UI: Coudfront distribution
-
-  CloudFrontDistributionUI:
-    Type: AWS::CloudFront::Distribution
+      VpcId: !Ref 'VPC'
+  ALBUITargetGroupUIService:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
     Condition: EnableUI
-    DependsOn:
-      - ALBUI
     Properties:
-      DistributionConfig:
-        Origins:
-          - DomainName: !GetAtt "ALBUI.DNSName"
-            Id: !Ref ALBUI
-            CustomOriginConfig:
-              HTTPPort: 80
-              OriginProtocolPolicy: http-only
-              OriginKeepaliveTimeout: 60
-              OriginReadTimeout: 30
-              OriginSSLProtocols:
-                - TLSv1
-                - TLSv1.1
-                - TLSv1.2
-                - SSLv3
-        Enabled: true
-        HttpVersion: http2
-        DefaultCacheBehavior:
-          AllowedMethods:
-            - GET
-            - HEAD
-            - DELETE
-            - OPTIONS
-            - PATCH
-            - POST
-            - PUT
-          Compress: true
-          DefaultTTL: 0
-          MinTTL: 0
-          MaxTTL: 0
-          SmoothStreaming: false
-          TargetOriginId: !Ref ALBUI
-          ForwardedValues:
-            QueryString: true
-            Cookies:
-              Forward: none
-          ViewerProtocolPolicy: redirect-to-https
-        CacheBehaviors:
-          - AllowedMethods:
-              - GET
-              - HEAD
-              - DELETE
-              - OPTIONS
-              - PATCH
-              - POST
-              - PUT
-            Compress: false
-            PathPattern: /api/*
-            DefaultTTL: 0
-            MinTTL: 0
-            MaxTTL: 0
-            SmoothStreaming: false
-            TargetOriginId: !Ref ALBUI
-            ForwardedValues:
-              QueryString: true
-              Cookies:
-                Forward: none
-            ViewerProtocolPolicy: redirect-to-https
-        PriceClass: PriceClass_All
-        IPV6Enabled: true
-
-  # UI: ECS Cluster task definition & service
-
+      Port:  !FindInMap ['ServiceInfoUIService', 'ContainerPort', 'value']
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckPath: "/api/ping"
+      HealthCheckIntervalSeconds: 10
+      VpcId: !Ref 'VPC'
   TaskDefinitionUIService:
     Type: AWS::ECS::TaskDefinition
     Condition: EnableUI
     Properties:
-      Family: !FindInMap ["ServiceInfoUI", "ServiceName", "value"]
-      Cpu: !FindInMap ["ServiceInfoUI", "ContainerCpu", "value"]
-      Memory: !FindInMap ["ServiceInfoUI", "ContainerMemory", "value"]
+      Family: !FindInMap ["ServiceInfoUIService", "ServiceName", "value"]
+      Cpu: !FindInMap ["ServiceInfoUIService", "ContainerCpu", "value"]
+      Memory: !FindInMap ["ServiceInfoUIService", "ContainerMemory", "value"]
       NetworkMode: awsvpc
+      EphemeralStorage:
+        SizeInGiB: 100
       RequiresCompatibilities:
         - FARGATE
       ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
       TaskRoleArn: !GetAtt 'MetadataSvcECSTaskRole.Arn'
       ContainerDefinitions:
-        - Name: !FindInMap ["ServiceInfoUI", "ServiceName", "value"]
+        - Name: !FindInMap ["ServiceInfoUIService", "ServiceName", "value"]
           Environment:
             - Name: "MF_METADATA_DB_HOST"
               Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
@@ -1648,9 +1634,23 @@ Resources:
               Value: "metaflow"
             - Name: "UI_ENABLED"
               Value: "1"
-          Cpu: !FindInMap ["ServiceInfoUI", "ContainerCpu", "value"]
-          Memory: !FindInMap ["ServiceInfoUI", "ContainerMemory", "value"]
-          Image: !FindInMap ["ServiceInfoUI", "ImageUrl", "value"]
+            - Name: PATH_PREFIX
+              Value: "/api/"
+            - Name: MF_DATASTORE_ROOT
+              Value: !Sub "s3://${MetaflowS3Bucket}/metaflow"
+            - Name: LOGLEVEL
+              Value: 'DEBUG'
+            - Name: METAFLOW_DATASTORE_SYSROOT_S3
+              Value: !Sub "s3://${MetaflowS3Bucket}/metaflow"
+            - Name: METAFLOW_SERVICE_URL
+              Value: !Join ['', [ "http://localhost:", !FindInMap ['ServiceInfoUIService', 'ContainerPort', 'value'], "/api/metadata" ]]
+            - Name: METAFLOW_DEFAULT_DATASTORE
+              Value: 's3'
+            - Name: METAFLOW_DEFAULT_METADATA
+              Value: 'service'
+          Cpu: !FindInMap ['ServiceInfoUIService', 'ContainerCpu', 'value']
+          Memory: !FindInMap ['ServiceInfoUIService', 'ContainerMemory', 'value']
+          Image: !FindInMap ['ServiceInfoUIService', 'ImageUrl', 'value']
           Command:
             [
               "/opt/latest/bin/python3",
@@ -1659,7 +1659,7 @@ Resources:
             ]
           PortMappings:
             - ContainerPort:
-                !FindInMap ["ServiceInfoUI", "ContainerPort", "value"]
+                !FindInMap ["ServiceInfoUIService", "ContainerPort", "value"]
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -1670,7 +1670,7 @@ Resources:
                     "/ecs/",
                     !Ref "AWS::StackName",
                     "-",
-                    !FindInMap ["ServiceInfoUI", "ServiceName", "value"],
+                    !FindInMap ["ServiceInfoUIService", "ServiceName", "value"],
                   ],
                 ]
               awslogs-region: !Ref "AWS::Region"
@@ -1686,37 +1686,148 @@ Resources:
             "/ecs/",
             !Ref "AWS::StackName",
             "-",
-            !FindInMap ["ServiceInfoUI", "ServiceName", "value"],
+            !FindInMap ["ServiceInfoUIService", "ServiceName", "value"],
           ],
         ]
   ECSFargateServiceUIService:
     Type: AWS::ECS::Service
     Condition: EnableUI
-    DependsOn: ALBUIListener
+    DependsOn:
+      - ListenerRuleUIService
     Properties:
-      ServiceName: !FindInMap ["ServiceInfoUI", "ServiceName", "value"]
+      ServiceName: !FindInMap ['ServiceInfoUIService', 'ServiceName', 'value']
       Cluster: !Ref 'ECSCluster'
       LaunchType: FARGATE
       DeploymentConfiguration:
         MaximumPercent: 200
         MinimumHealthyPercent: 75
-      DesiredCount: !FindInMap ["ServiceInfoUI", "DesiredCount", "value"]
+      DesiredCount: !FindInMap ['ServiceInfoUIService', 'DesiredCount', 'value']
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
           SecurityGroups:
-            - !Ref FargateSecurityGroup
+            - !Ref 'FargateSecurityGroup'
           Subnets:
-            - !Ref Subnet1
-            - !Ref Subnet2
-      TaskDefinition: !Ref TaskDefinitionUIService
+            - !Ref 'Subnet1'
+            - !Ref 'Subnet2'
+      TaskDefinition: !Ref 'TaskDefinitionUIService'
       LoadBalancers:
-        - ContainerName: !FindInMap ["ServiceInfoUI", "ServiceName", "value"]
-          ContainerPort: !FindInMap ["ServiceInfoUI", "ContainerPort", "value"]
-          TargetGroupArn: !Ref ALBUITargetGroupUIService
-
-# --- Metaflow UI resources end ---
-
+        - ContainerName: !FindInMap ['ServiceInfoUIService', 'ServiceName', 'value']
+          ContainerPort: !FindInMap ['ServiceInfoUIService', 'ContainerPort', 'value']
+          TargetGroupArn: !Ref 'ALBUITargetGroupUIService'
+  TaskDefinitionUIStatic:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
+      Cpu: !FindInMap ['ServiceInfoUIStatic', 'ContainerCpu', 'value']
+      Memory: !FindInMap ['ServiceInfoUIStatic', 'ContainerMemory', 'value']
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !Ref 'ECSTaskExecutionRole'
+      TaskRoleArn: !GetAtt 'MetadataSvcECSTaskRole.Arn'
+      ContainerDefinitions:
+        - Name: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
+          Cpu: !FindInMap ['ServiceInfoUIStatic', 'ContainerCpu', 'value']
+          Memory: !FindInMap ['ServiceInfoUIStatic', 'ContainerMemory', 'value']
+          Image: !FindInMap ['ServiceInfoUIStatic', 'ImageUrl', 'value']
+          PortMappings:
+            - ContainerPort: !FindInMap ['ServiceInfoUIStatic', 'ContainerPort', 'value']
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '-', !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']]]
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: 'ecs'
+  ServiceLogGroupUIStatic:
+    Type: AWS::Logs::LogGroup
+    Condition: EnableUI
+    Properties:
+      LogGroupName: !Join ['', ['/ecs/', !Ref 'AWS::StackName', '-', !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']]]
+  ECSFargateServiceUIStatic:
+    Type: AWS::ECS::Service
+    Condition: EnableUI
+    DependsOn:
+      - ListenerUI
+    Properties:
+      ServiceName: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
+      Cluster: !Ref 'ECSCluster'
+      LaunchType: FARGATE
+      DeploymentConfiguration:
+        MaximumPercent: 200
+        MinimumHealthyPercent: 75
+      DesiredCount: !FindInMap ['ServiceInfoUIStatic', 'DesiredCount', 'value']
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups:
+            - !Ref 'FargateSecurityGroup'
+          Subnets:
+            - !Ref 'Subnet1'
+            - !Ref 'Subnet2'
+      TaskDefinition: !Ref 'TaskDefinitionUIStatic'
+      LoadBalancers:
+        - ContainerName: !FindInMap ['ServiceInfoUIStatic', 'ServiceName', 'value']
+          ContainerPort: !FindInMap ['ServiceInfoUIStatic', 'ContainerPort', 'value']
+          TargetGroupArn: !Ref 'ALBTargetGroupUIStatic'
+  LoadBalancerSecurityGroupUI: # Security Group for Load Balancer allows incoming HTTPS requests
+    Type: 'AWS::EC2::SecurityGroup'
+    Condition: EnableUI
+    Properties:
+      GroupDescription: 'Load Balancer'
+      VpcId: !Ref 'VPC'
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 443
+        ToPort: 443
+        CidrIp: '0.0.0.0/0'
+  UserPoolUI:
+    Type: 'AWS::Cognito::UserPool'
+    Condition: EnableUI
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true # Disable self-registration
+        InviteMessageTemplate:
+          EmailSubject: !Sub '${AWS::StackName}: temporary password'
+          EmailMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
+          SMSMessage: 'Use the username {username} and the temporary password {####} to log in for the first time.'
+      AutoVerifiedAttributes:
+      - email
+      UsernameAttributes:
+      - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 16
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+          TemporaryPasswordValidityDays: 21
+  UserPoolDomainUI: # Provides Cognito Login Page
+    Type: 'AWS::Cognito::UserPoolDomain'
+    Condition: EnableUI
+    Properties:
+      UserPoolId: !Ref UserPoolUI
+      Domain: !Select [2, !Split ['/', !Ref 'AWS::StackId']] # Generates a unique domain name
+  UserPoolClientUI:
+    Type: 'AWS::Cognito::UserPoolClient'
+    Condition: EnableUI
+    Properties:
+      AllowedOAuthFlows:
+      - code # Required for ALB authentication
+      AllowedOAuthFlowsUserPoolClient: true # Required for ALB authentication
+      AllowedOAuthScopes:
+      - email
+      - openid
+      - profile
+      - aws.cognito.signin.user.admin
+      CallbackURLs:
+      - !Sub https://${LoadBalancerUI.DNSName}/oauth2/idpresponse # Redirects to the ALB
+      - !Sub https://${PublicDomainName}/oauth2/idpresponse # Redirects to the ALB
+      GenerateSecret: true
+      SupportedIdentityProviders: # Optional: add providers for identity federation
+      - COGNITO
+      UserPoolId: !Ref UserPoolUI
 Outputs:
   MetaflowDataStoreS3Url:
     Description: Amazon S3 URL for Metaflow DataStore [METAFLOW_DATASTORE_SYSROOT_S3]
@@ -1760,14 +1871,23 @@ Outputs:
   MigrationFunctionName:
     Description: "Name of DB Migration Function"
     Value: !Ref ExecuteDBMigration
-  
-  # Metaflow UI outputs
-
-  UIServiceUrl:
-    Description: "ALB URL for Metadata UI (Open to Public Access)"
-    Value: !Sub "http://${ALBUI.DNSName}/"
+  VPCId:
+    Description: "VPC Id"
+    Value: !Ref VPC
+  Subnet1Id:
+    Description: "Subnet 1 Id"
+    Value: !Ref Subnet1
+  Subnet2Id:
+    Description: "Subnet 2 Id"
+    Value: !Ref Subnet2
+  RDSSecret:
+    Description: "RDS Secret"
+    Value: !Ref MyRDSSecret
+  LoadBalancerUIZoneID:
     Condition: EnableUI
-  UIServiceCloudfrontUrl:
-    Description: "Cloudfront URL for Metadata UI (Open to Public Access)"
-    Value: !Sub "https://${CloudFrontDistributionUI.DomainName}/"
+    Description: "UI Load Balancer Canonical Hosted Zone ID"
+    Value: !GetAtt "LoadBalancerUI.CanonicalHostedZoneID"
+  LoadBalancerUIDNSName:
     Condition: EnableUI
+    Description: "UI Load Balancer DNS Name"
+    Value: !GetAtt "LoadBalancerUI.DNSName"
