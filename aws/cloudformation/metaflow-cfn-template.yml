@@ -22,10 +22,9 @@ Parameters:
   MaxVCPUBatch:
     Type: Number
     Default: 64
-    AllowedValues: [16,32,64,96]
     MinValue: 16
-    MaxValue: 96
-    Description: 'Maximum VCPUs for Batch Compute Environment [16-96]'
+    MaxValue: 256
+    Description: 'Maximum VCPUs for Batch Compute Environment [16-256]. You can change the upper limit by editing the Cloudformation template.'
   MinVCPUBatch:
     Type: Number
     Default: 8
