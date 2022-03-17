@@ -27,11 +27,25 @@ spec:
       serviceAccountName: {{ include "metaflow-service.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.dbMigrations.runOnStart }}
+      initContainers:
+        - name: db-migrations
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+          - "/opt/latest/bin/python3"
+          - "/root/run_goose.py"
+          {{- if .Values.dbMigrations.onlyIfDbEmpty }}
+          - "--only-if-empty-db"
+          {{- end }}
+          env:
+            {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/opt/latest/bin/python3", "-m", "services.metadata_service.server" ]
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
