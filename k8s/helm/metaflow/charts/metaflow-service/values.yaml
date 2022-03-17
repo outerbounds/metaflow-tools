@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: netflixoss/metaflow_metadata_service
+  repository: public.ecr.aws/outerbounds/metaflow_metadata_service
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -27,6 +27,17 @@ podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
+
+dbMigrations:
+  # Set to true to run migrations on every container start
+  runOnStart: true
+  # Set to true to only run them if db is empty. This setting has no effect is
+  # runOnStart is false.
+  #
+  # We recommend setting this to true for production environments with lots
+  # of runs, since running the migrations may lock the database for a while.
+  # For smaller/toy deployments you can set this to false
+  onlyIfDbEmpty: true
 
 securityContext: {}
   # capabilities:
