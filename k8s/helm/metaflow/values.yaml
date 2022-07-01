@@ -11,7 +11,10 @@ metaflow-ui:
     user: metaflow
 
   ingress:
-    enabled: true
+    # className: nginx
+    enabled: false
+    annotations: {}
+      # service.beta.kubernetes.io/azure-load-balancer-internal: "true"
     hosts:
       - host: localhost
 
