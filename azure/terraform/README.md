@@ -11,7 +11,7 @@ It will also deploy Metaflow services onto the AKS cluster above.
 * Install [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 * Install [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl).
 * Install [az](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) CLI.
-* `az login` as an Azure account with sufficient priviledges to administer necessary resources:
+* `az login` as an Azure account with sufficient privileges to administer necessary resources:
   * AKS
   * Azure storage accounts and containers
   * Virtual networks
@@ -23,7 +23,7 @@ It will also deploy Metaflow services onto the AKS cluster above.
 ## Usage
 The templates are organized into two modules, `infra` and `services`.
 
-Before you do anything, uncomment and update the `org_prefix` [local variable](https://github.com/outerbounds/metaflow-on-azure/blob/21ffd571ec6e0b395234e1054c4835385a724eed/terraform/variables.tf#L8).
+Before you do anything, uncomment and update the `org_prefix` [local variable](TODO_FIX_THIS_LINK)
 ```
 org_prefix = "yourorg"  # use something short and distinctive
 ```
