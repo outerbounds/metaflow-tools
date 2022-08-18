@@ -9,7 +9,7 @@ This repository contains various configuration files, tools and utilities for op
 If you're not already using Terraform, this is the easiest way to get started on AWS. You can find the template under [aws/cloudformation](./aws/cloudformation) in this repository.
 
 ### Sample Terraform templates for AWS
-An alternate infrastructure as code option is Terraform. An end-to-end example can be found under [aws/terraform](./aws/terraform) in this repository. The example leverages the official Terraform module [outerbounds/terraform-aws-metaflow](https://registry.terraform.io/modules/outerbounds/metaflow/aws/latest) as a building block.
+Another deployment option is using Terraform. An end-to-end example can be found under [aws/terraform](./aws/terraform) in this repository. The example leverages the official Terraform module [outerbounds/terraform-aws-metaflow](https://registry.terraform.io/modules/outerbounds/metaflow/aws/latest) as a building block.
 
 ## Metaflow on Azure (/azure)
 ### Sample Terraform templates for Azure
@@ -21,7 +21,7 @@ We provide Helm charts to deploy Metaflow Metadata service and UI in a K8S clust
 
 ## Cloud agnostic resources (/common)
 ### Sample Metaflow flow definitions
-Some Metaflow flows that could be used to test drive a Metaflow stack (e.g. running in a cloud). Some of these flows
+Some Metaflow flows that could be used to test drive a Metaflow stack. Some of these flows
 are used to drive end-to-end CI coverage internally at Outerbounds.  They live under [common/sample_flows](./common/sample_flows)
 
 ## Utility scripts (/scripts)
