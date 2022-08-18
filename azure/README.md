@@ -1,6 +1,6 @@
 # Metaflow-on-Azure - infrastructure code samples
 
-This folder houses some resources to help you get started with running 
+This folder houses resources to help you get started with running 
 Metaflow on Azure.
 
 ## terraform/
