@@ -21,7 +21,7 @@ We provide Helm charts to deploy Metaflow Metadata service and UI in a K8S clust
 
 ## Cloud agnostic resources (/common)
 ### Sample Metaflow flow definitions
-Some Metaflow flows that could be used to test drive a Metaflow stack (e.g. running in a cloud). Some of these flows
+Some Metaflow flows that could be used to test drive a Metaflow stack. Some of these flows
 are used to drive end-to-end CI coverage internally at Outerbounds.  They live under [common/sample_flows](./common/sample_flows)
 
 ## Utility scripts (/scripts)
