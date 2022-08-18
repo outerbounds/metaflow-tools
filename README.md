@@ -18,7 +18,6 @@ This is the quickest way to spin up a fully functional Metaflow stack on Azure. 
 ## Metaflow services on Kubernetes (/k8s)
 ### Helm Charts (alpha)
 We provide Helm charts to deploy Metaflow Metadata service and UI in a K8S cluster. This way you can use Metaflow without any AWS-specific dependencies on AWS except for having a S3-compatible object storage engine available. You can find them under [k8s/helm/metaflow](./k8s/helm/metaflow) in this repository.
-These Helm charts are NOT needed if you are using Azure sample templates above - those templates are all-inclusive.
 
 ## Cloud agnostic resources (/common)
 ### Sample Metaflow flow definitions
