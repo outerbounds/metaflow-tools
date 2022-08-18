@@ -23,7 +23,7 @@ It will also deploy Metaflow services onto the AKS cluster above.
 ## Usage
 The templates are organized into two modules, `infra` and `services`.
 
-Before you do anything, uncomment and update the `org_prefix` [local variable](TODO_FIX_THIS_LINK)
+Before you do anything, uncomment and update the `org_prefix` [local variable](https://github.com/outerbounds/metaflow-tools/blob/f7ff07d49563dc8217f7fe49150b2d50a14d999f/azure/terraform/variables.tf#L9)
 ```
 org_prefix = "yourorg"  # use something short and distinctive
 ```
