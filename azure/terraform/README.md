@@ -17,8 +17,7 @@ It will also deploy Metaflow services onto the AKS cluster above.
   * Virtual networks
   * AAD applications
   * ...
-  * Note-1: If you are an admin of your Azure subscription already you should be good to go.
-  * Note-2: It's alright to discover lacking privileges later on - you can remedy it at the point.
+  * Note-1: If you are an Owner of your Azure subscription already you should be good to go.
 
 ## Usage
 The templates are organized into two modules, `infra` and `services`.

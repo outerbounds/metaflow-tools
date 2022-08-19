@@ -7,13 +7,16 @@ This repository contains various configuration files, tools and utilities for op
 ## Metaflow on AWS (/aws)
 ### Metaflow Cloudformation template
 If you're not already using Terraform, this is the easiest way to get started on AWS. You can find the template under [aws/cloudformation](./aws/cloudformation) in this repository.
+This stack uses AWS Batch for compute and AWS Step Functions for orchestration.
 
 ### Sample Terraform templates for AWS
 Another deployment option is using Terraform. An end-to-end example can be found under [aws/terraform](./aws/terraform) in this repository. The example leverages the official Terraform module [outerbounds/terraform-aws-metaflow](https://registry.terraform.io/modules/outerbounds/metaflow/aws/latest) as a building block.
+This stack uses AWS Batch for compute and AWS Step Functions for orchestration.
 
 ## Metaflow on Azure (/azure)
 ### Sample Terraform templates for Azure
 This is the quickest way to spin up a fully functional Metaflow stack on Azure. See details under [azure/terraform](./azure/terraform) in this repository.
+This stack uses Kubernetes (AKS) for compute and Argo Workflows for orchestration.
 
 ## Metaflow services on Kubernetes (/k8s)
 ### Helm Charts (alpha)
