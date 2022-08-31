@@ -22,9 +22,6 @@ resource "azurerm_kubernetes_cluster" "metaflow_kubernetes" {
     type = "SystemAssigned"
   }
 
-  # Expect to change this often, Kubernetes versions move fast.
-  kubernetes_version = "1.22"
-
   # We think "stable" upgrades the cluster control plane AND updates node images
   # https://stackoverflow.com/questions/72289012/why-update-aks-cluster-also-update-the-node-image
   automatic_channel_upgrade = "stable"

@@ -23,9 +23,9 @@ locals {
   k8s_subnet_name = "snet-${local.org_prefix}-metaflow-k8s-${local.location}-${terraform.workspace}"
 
   # Changeable after initial "terraform apply" (e.g. image upgrades, secret rotation)
-  metadata_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.0"
+  metadata_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
   metaflow_ui_static_service_image = "public.ecr.aws/outerbounds/metaflow_ui:v1.1.4"
-  metaflow_ui_backend_service_image = "jackieob/metadata-service-cors:rc0_amd64_with_azure"
+  metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
   metaflow_kubernetes_secrets = "metaflow-azure-storage-credentials"
 
   # Forever constants
