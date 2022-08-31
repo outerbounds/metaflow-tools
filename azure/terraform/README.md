@@ -31,7 +31,7 @@ This is used to help generate unique resource names for:
 * Azure storage account name
 Note: these resources must be globally unique across all of Azure.
 
-Next, apply the `infra` module (creates AKS resources only).
+Next, apply the `infra` module (creates Azure cloud resources only).
 
     terraform apply -target="module.infra"
 
