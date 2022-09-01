@@ -11,9 +11,8 @@ There are three steps:
 
 STEP 1: Ensure you have sufficient access to these GCP resources on your local workstation:
 
-# TODO
-- GKE
-- Storage
+- Google Kubernetes Engine ("Kubernetes Engine Developer role")
+- Google Cloud Storage ("Storage Object Admin" on bucket ${local.storage_bucket_name})
 
 Option 1: Login with gcloud CLI
 
