@@ -52,11 +52,15 @@ provider "azurerm" {
   features {}
 }
 
-# TODO : Verify this tf template. Check if it works. 
 provider "helm" {
   kubernetes {
-    config_path = "~/.kube/config"
+    config_path = local_file.helm_kubeconfig.filename
   }
+}
+
+resource "local_file" "helm_kubeconfig" {
+  content = data.azurerm_kubernetes_cluster.default.kube_config_raw
+  filename = "${path.root}/kubeconfig_${terraform.workspace}"
 }
 
 module "infra" {
