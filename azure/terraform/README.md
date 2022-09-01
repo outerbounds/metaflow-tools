@@ -31,7 +31,7 @@ This is used to help generate unique resource names for:
 * Azure storage account name
 Note: these resources must be globally unique across all of Azure.
 
-The template also provides the `deploy_airflow` and `deploy_argo` flags. These are booleans that specify if airflow or argo will be deployed in the kubernetes cluster along with metaflow related services. 
+The template also provides the `deploy_airflow` and `deploy_argo` flags. These are booleans that specify if airflow or argo will be deployed in the kubernetes cluster along with metaflow related services. By default `deploy_argo` is set ot __true__ and `deploy_airflow` is set to __false__.
 
 Next, apply the `infra` module (creates Azure cloud resources only).
 

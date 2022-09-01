@@ -83,7 +83,7 @@ $ kubectl port-forward -n argo deployment/argo-server 2746:2746
 
 option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
-$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo]
+$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
 STEP 4: Install Azure Python SDK
 $ pip install azure-storage-blob azure-identity
