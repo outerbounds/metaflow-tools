@@ -32,8 +32,7 @@ STEP 2: Configure Metaflow:
 
 Option 1: Create JSON config directly
 
-Create the file "~/.metaflowconfig/config.json" with this content. If this file already exists, keep a backup of it and
-move it aside first. 
+Create the file "~/.metaflowconfig/config.json" with this content. If this file already exists, keep a backup of it and move it aside first. 
 {
     "METAFLOW_AZURE_STORAGE_BLOB_SERVICE_ENDPOINT": "${data.azurerm_storage_account.default.primary_blob_endpoint}",
     "METAFLOW_DATASTORE_SYSROOT_AZURE": "${local.metaflow_datastore_sysroot_azure}",
@@ -47,8 +46,8 @@ move it aside first.
 }
 
 If deployed with Airflow or Argo then remove the `METAFLOW_KUBERNETES_SERVICE_ACCOUNT` key from the json file. 
-If deployed with Airflow set `METAFLOW_KUBERNETES_NAMESPACE` to airflow. 
-If deployed with Argo set `METAFLOW_KUBERNETES_NAMESPACE` to argo. 
+If deployed with Airflow set `METAFLOW_KUBERNETES_NAMESPACE` to "airflow". 
+If deployed with Argo set `METAFLOW_KUBERNETES_NAMESPACE` to "argo". 
 
 Option 2: Interactive configuration
 
