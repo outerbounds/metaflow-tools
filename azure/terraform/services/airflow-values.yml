@@ -1,4 +1,4 @@
-executor: LocalExecutor
+executor: ${airflow_executor}
 config:
   scheduler:
     dag_dir_list_interval: 120

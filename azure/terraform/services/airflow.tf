@@ -23,11 +23,12 @@ resource "helm_release" "airflow" {
     templatefile("${path.module}/airflow-values.yml", {
       airflow_version = var.airflow_version
       airflow_frenet_secret = var.airflow_frenet_secret
-      azure_account_name = var.metaflow_storage_account_name # TODO :FIX ME !
-      azure_container_name = var.metaflow_storage_container  # TODO :FIX ME !
+      airflow_executor = var.airflow_executor
+      azure_account_name = var.metaflow_storage_account_name 
+      azure_container_name = var.metaflow_storage_container  
       dags_sync_prefix = var.airflow_dags_sync_prefix
       dag_sync_frequency = var.airflow_dag_sync_frequency
-      azure_credentials_secret = var.metaflow_kubernetes_secret_name # Todo : verify with jackie about this refernce not being used in secrets.tf
+      azure_credentials_secret = var.metaflow_kubernetes_secret_name
     })
   ]
 }

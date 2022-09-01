@@ -65,6 +65,10 @@ variable "airflow_dag_sync_frequency" {
   type = string
 }
 
+variable "airflow_executor" {
+  type = string
+}
+
 variable "deploy_argo" {
   type = bool
 }

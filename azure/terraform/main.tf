@@ -103,6 +103,7 @@ module "services" {
     AZURE_TENANT_ID     = module.infra.service_principal_tenant_id
     AZURE_CLIENT_SECRET = module.infra.service_principal_client_secret
   }
+  
   deploy_airflow                          = local.deploy_airflow
   deploy_argo                             = local.deploy_argo
   
@@ -110,4 +111,5 @@ module "services" {
   airflow_frenet_secret =  local.airflow_frenet_secret
   airflow_dags_sync_prefix =   local.airflow_dags_sync_prefix
   airflow_dag_sync_frequency =   local.airflow_dag_sync_frequency
+  airflow_executor = local.airflow_executor
 }

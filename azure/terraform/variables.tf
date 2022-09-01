@@ -44,5 +44,6 @@ locals {
   airflow_frenet_secret = "myverysecretvalue"
   airflow_dags_sync_prefix = "airflow-dags"
   airflow_dag_sync_frequency = "30"
+  airflow_executor = "KubernetesExecutor" # Can be changed to LocalExecutor
 }
 
