@@ -35,8 +35,8 @@ locals {
   metaflow_db_port = 5432
 
   # Flags to deploy argo or airflow
-  deploy_argo = false
-  deploy_airflow = true
+  deploy_argo = true
+  deploy_airflow = false
 
 
   # Airflow Related Options 

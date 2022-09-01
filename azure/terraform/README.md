@@ -31,9 +31,21 @@ This is used to help generate unique resource names for:
 * Azure storage account name
 Note: these resources must be globally unique across all of Azure.
 
+The template also provides variables such as `deploy_airflow` and `deploy_argo` which are booleans that specify if airflow or argo will be deployed in the kubernetes cluster along with metaflow related services. 
+
 Next, apply the `infra` module (creates Azure cloud resources only).
 
     terraform apply -target="module.infra"
+
+### Airflow Deployment with Azure
+If `deploy_airflow` is set to true, then the `infra` module will create one more storage blob-container named `airflow-logs` and will also provide blob-container R/W permissions to the service principle. We create this extra blob-container because Airflow expects the default blob-container name to be `airflow-logs` and provides [no way to configure that from top level](https://github.com/apache/airflow/blob/b19ccf8ead027d9eaf53b33305be5873f2711699/airflow/config_templates/airflow_local_settings.py#L241) (At version 2.3.3, can change in the future). 
+
+The `services` module will deploy Airflow via a helm chart into the kubernetes cluster (the one deployed by the `infra` module). The Airflow installation will store all the logs in the `airflow-logs` blob-container and the airflow scheduler will sync dags from the `airflow-dags` folder under the metaflow storage blob-container (both deployed by the `infra` module). 
+
+To sync Airflow dags to the Airflow scheduler, you can copy them to the `airflow-dags` folder under the metaflow storage blob-container by using tools like `azcopy` or `az`. Example:
+```
+azcopy cp dag.py https://<BLOBSTORE_ENDPOINT>/<METAFLOW_STORAGE_CONTAINER_NAME>/airflow-dags/dag.py
+```
 
 ### Common issues:
 #### PostgeSQL provisioning API errors (on Azure side)

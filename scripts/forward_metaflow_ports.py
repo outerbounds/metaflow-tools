@@ -24,10 +24,13 @@ DEFAULT_PORT_FW_CONFIGS = {
 
 
 class PortForwarder(object):
-    def __init__(self, key,deployment, port, is_ui, namespace=None, scheme='http'):
+    def __init__(self, key,deployment, port, is_ui, namespace=None, scheme='http', output_port=None):
         self.key = key
         self.deployment = deployment
         self.port = port
+        self.output_port = port
+        if output_port is not None:
+            self.output_port = output_port
         self.namespace = namespace
         self.port_fwd_proc = None
         self.is_ui = is_ui
@@ -37,14 +40,14 @@ class PortForwarder(object):
         return self.port_fwd_proc is not None and self.port_fwd_proc.returncode is None
 
     def get_browser_hint(self):
-        return "Open %s at %s://localhost:%d" % (self.deployment, self.scheme, self.port,)
+        return "Open %s at %s://localhost:%d" % (self.deployment, self.scheme, self.output_port,)
 
     def start_new_port_fwd_proc(self):
         deployment_name = self.deployment
         cmd = ["kubectl", "port-forward", "deployment/%s" % deployment_name]
         if self.namespace:
             cmd.extend(["-n", self.namespace])
-        cmd.append("{port}:{port}".format(port=self.port))
+        cmd.append("{output_port}:{port}".format(port=self.port, output_port=self.output_port))
         self.port_fwd_proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log("Started port forward for %s" % self.deployment)
 
@@ -79,7 +82,7 @@ def log(s):
     print("%s - %s" % (dt, s))
 
 
-def run(include_argo):
+def run(include_argo, include_airflow):
     port_forwarders = []
     for key, config in DEFAULT_PORT_FW_CONFIGS.items():
         port_forwarders.append(PortForwarder(
@@ -98,6 +101,18 @@ def run(include_argo):
                 True,
                 namespace="argo",
                 scheme='https'
+            )
+        )
+    if include_airflow:
+        port_forwarders.append(
+            PortForwarder(
+                "airflow",
+                "airflow-deployment-webserver",
+                8080,
+                True,
+                namespace="airflow",
+                scheme='https',
+                output_port=9090
             )
         )
     try:
@@ -119,6 +134,9 @@ def main():
     parser = argparse.ArgumentParser(description="Maintain port forwards to Kubernetes Metaflow stack")
     parser.add_argument('--include-argo', action='store_true',
                         help="Do port forward for argo server (needed for Argo UI)")
+    parser.add_argument('--include-airflow', action='store_true',
+                        help="Do port forward for argo server (needed for Argo UI)")
+
     args = parser.parse_args()
 
     try:
@@ -133,7 +151,7 @@ def main():
         print("nc utility must be installed!")
         return 1
 
-    return run(args.include_argo)
+    return run(args.include_argo, args.include_airflow)
 
 
 if __name__ == '__main__':
