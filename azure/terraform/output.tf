@@ -40,6 +40,7 @@ METAFLOW_AZURE_STORAGE_BLOB_SERVICE_ENDPOINT=${data.azurerm_storage_account.defa
 METAFLOW_KUBERNETES_SECRETS=${local.metaflow_kubernetes_secret_name}
 METAFLOW_SERVICE_URL=http://127.0.0.1:8080/
 METAFLOW_SERVICE_INTERNAL_URL=http://metadata-service.default:8080/
+[For Airflow only] METAFLOW_KUBERNETES_NAMESPACE=airflow
 [For Argo only] METAFLOW_KUBERNETES_NAMESPACE=argo
 
 Note: you can skip these:
