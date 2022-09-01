@@ -6,19 +6,19 @@ config:
     dags_folder: "/dags"
     dagbag_import_timeout: 300
 
-defaultAirflowTag: ${airflow_version} # todo : configure TF Var [airflow_version]
+defaultAirflowTag: ${airflow_version} 
 
 # Default airflow tag to deploy
-defaultAirflowTag: ${airflow_version} # todo : configure TF Var [airflow_version]
+defaultAirflowTag: ${airflow_version} 
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
-airflowVersion: ${airflow_version} # todo : configure TF Var [airflow_version]
+airflowVersion: ${airflow_version} 
 
 env:
   - name: AIRFLOW__LOGGING__REMOTE_LOGGING
     value: "True"
   - name: AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER
-    value: 'wasb-logs' # todo : configure TF Var [airflow_logging_storage_path]
+    value: 'wasb-logs' 
   - name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
     value: "azure_default"
   - name: AIRFLOW_CONN_AZURE_DEFAULT
@@ -60,7 +60,6 @@ triggerer:
             name: ${azure_credentials_secret}
       image: valayob/bucket-sync:latest
       imagePullPolicy: Always
-      # todo : configure TF Var [az_container_path]
       args: [sync-azure-blobs,https://${azure_account_name}.blob.core.windows.net, ${azure_container_name}, ${dags_sync_prefix},/dags,--frequency, '${dag_sync_frequency}']
       volumeMounts:
       - name: synchronised-dags
@@ -80,7 +79,6 @@ workers:
             name: ${azure_credentials_secret}
       image: valayob/bucket-sync:latest
       imagePullPolicy: Always
-      # todo : configure TF Var [az_container_path]
       args: [sync-azure-blobs,https://${azure_account_name}.blob.core.windows.net, ${azure_container_name}, ${dags_sync_prefix},/dags,--only-once]
       volumeMounts:
       - name: synchronised-dags
@@ -100,7 +98,6 @@ scheduler:
             name: ${azure_credentials_secret}
       image: valayob/bucket-sync:latest
       imagePullPolicy: Always
-      # todo : configure TF Var [az_container_path]
       args: [sync-azure-blobs,https://${azure_account_name}.blob.core.windows.net, ${azure_container_name}, ${dags_sync_prefix},/dags,--frequency,'${dag_sync_frequency}']
       volumeMounts:
       - name: synchronised-dags
