@@ -33,10 +33,46 @@ variable "metaflow_datastore_sysroot_azure" {
   type = string
 }
 
+variable "metaflow_storage_account_name" {
+  type = string
+}
+
 variable "metaflow_azure_storage_blob_service_endpoint" {
   type = string
 }
 
 variable "azure_storage_credentials" {
   type = map
+}
+
+variable "metaflow_kubernetes_secret_name"{
+  type = string
+}
+
+variable "airflow_version" {
+  type = string
+}
+
+variable "airflow_frenet_secret" {
+  type = string
+}
+
+variable "airflow_dags_sync_prefix" {
+  type = string
+}
+
+variable "airflow_dag_sync_frequency" {
+  type = string
+}
+
+variable "deploy_argo" {
+  type = bool
+}
+
+variable "deploy_airflow" {
+  type = bool
+}
+
+variable "metaflow_storage_container"{
+  type = string
 }

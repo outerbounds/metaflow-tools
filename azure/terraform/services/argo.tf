@@ -1,4 +1,5 @@
 resource "kubernetes_namespace" "argo" {
+  count = var.deploy_argo ? 1 : 0
   metadata {
     name = "argo"
   }
@@ -14,6 +15,7 @@ locals {
 # https://registry.terraform.io/providers/gavinbunney/kubectl/1.14.0
 # The main challenge is that the Argo yaml contains multiple k8s resources, and terraform does not accept that natively.
 resource "null_resource" "argo-quick-start-installation" {
+  count = var.deploy_argo ? 1 : 0
   triggers = {
     cmd = local._kubectl_cmd
   }

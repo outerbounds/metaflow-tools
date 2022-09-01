@@ -4,13 +4,45 @@ import json
 import click
 import logging
 import os
-
-from functools import wraps
 import time
 
 
 LOGGER_NAME = "BUCKET_SYNC"
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")
+
+
+
+
+def safe_makedirs(_dir):
+    try:
+        os.makedirs(_dir)
+    except FileExistsError:
+        pass
+
+
+def _download_azure_blobs(
+    blob_endpoint=None, container=None, blob_prefix=None, output_folder=None
+):
+    from azure.storage.blob import BlobServiceClient
+    from azure.identity import DefaultAzureCredential
+
+    credential = DefaultAzureCredential()
+    service = BlobServiceClient(account_url=blob_endpoint, credential=credential)
+    con_client = service.get_container_client(container)
+    safe_makedirs(output_folder)
+    written_paths = []
+    if not blob_prefix.endswith('/'):
+        blob_prefix = blob_prefix+"/"
+    for item in con_client.list_blobs(blob_prefix):
+        blob_obj = service.get_blob_client(container, item.name)
+
+        file_name = item.name[len(blob_prefix) :]
+        output_file = os.path.join(output_folder, file_name)
+        print("Writing file to %s", output_file, output_folder)
+        with open(output_file, "wb") as f:
+            blob_obj.download_blob().readinto(f)
+            written_paths.append(output_file)
+    return written_paths
 
 
 @click.group()
@@ -59,7 +91,7 @@ def bash_command(*args, **kwargs):
             check_output = True
         else:
             check_output = False
-        return functools.partial(inner,check_out=check_output)
+        return functools.partial(inner, check_out=check_output)
 
 
 def as_json(func):
@@ -78,33 +110,6 @@ def _sync_bucket(localp, s3p):
 @bash_command
 def _s3_ls(s3p):
     return ["aws", "s3", "ls", s3p]
-
-
-@bash_command(check_output=False)
-def _sync_blobs(localp, s3p):
-    return ["azcopy", "sync", localp, s3p, "--recursive"]
-
-
-@bash_command(check_output=False)
-def az_login():
-    if not os.environ.get("AZURE_CLIENT_ID", False):
-        raise Exception("No environment variable for `AZURE_CLIENT_ID` found")
-    if not os.environ.get("AZURE_TENANT_ID", False):
-        raise Exception("No environment variable for `AZURE_TENANT_ID` found")
-    if not os.environ.get("AZURE_CLIENT_SECRET", False):
-        raise Exception("No environment variable for `AZURE_CLIENT_SECRET` found")
-
-    os.environ["AZCOPY_SPA_CLIENT_SECRET"] = os.environ.get("AZURE_CLIENT_SECRET")
-
-    return [
-        "azcopy",
-        "login",
-        "--service-principal",
-        "--application-id",
-        os.environ.get("AZURE_CLIENT_ID"),
-        "--tenant-id",
-        os.environ.get("AZURE_TENANT_ID"),
-    ]
 
 
 @cli.command()
@@ -139,7 +144,9 @@ def sync_bucket(local_path, s3_path, frequency=100, only_once=False):
 
 
 @cli.command()
-@click.argument("container-path")
+@click.argument("storage-endpoint")
+@click.argument("container-name")
+@click.argument("blob-prefix")
 @click.argument("local-path")
 @click.option("--frequency", default=60, type=int, help="Frequency in seconds to sync")
 @click.option(
@@ -149,18 +156,27 @@ def sync_bucket(local_path, s3_path, frequency=100, only_once=False):
     type=int,
     help="Run the process only once",
 )
-def sync_azure_blobs(local_path, container_path, frequency=100, only_once=False):
+def sync_azure_blobs(
+    storage_endpoint,
+    container_name,
+    blob_prefix,
+    local_path,
+    frequency=100,
+    only_once=False,
+):
     logger = logging.getLogger(LOGGER_NAME)
     logger.setLevel(logging.INFO)
-    az_login()
     while True:
-        logger.info("Syncing Azure Blob Store %s" % container_path)
-        # logger.info(_s3_ls(s3_path))
-        _sync_blobs(local_path, container_path)
         logger.info(
-            "Files synced: \n\t %s"
-            % "\n\t".join([str(f) for f in os.listdir(local_path)])
+            "Syncing Azure Blob Store %s to local path %s"
+            % (
+                os.path.join(storage_endpoint, container_name, blob_prefix),local_path
+            )
         )
+        files_synced = _download_azure_blobs(
+            storage_endpoint, container_name, blob_prefix, local_path
+        )
+        logger.info("Files synced: \n\t %s" % "\n\t".join(files_synced))
         logger.info(
             "Azure Blobs Synced to path %s. Sleeping for %d seconds"
             % (local_path, frequency)

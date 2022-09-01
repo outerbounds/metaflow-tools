@@ -46,3 +46,7 @@ variable "db_subnet_name" {
 variable "k8s_subnet_name" {
   type = string
 }
+
+variable "deploy_airflow" {
+  type = bool
+}
