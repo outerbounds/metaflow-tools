@@ -1,12 +1,12 @@
 resource random_id database_server_name_suffix {
   byte_length = 4
   keepers = {
-    db_generation_number = local.db_generation_number
+    db_generation_number = var.db_generation_number
   }
 }
 
 locals {
-  db_generation_number = 0
+
   database_server_name_prefix = "metaflow-database-server-${terraform.workspace}"
   database_server_name = "${local.database_server_name_prefix}-${random_id.database_server_name_suffix.hex}"
   kubernetes_cluster_name = "metaflow-kubernetes-${terraform.workspace}"
@@ -31,4 +31,9 @@ variable project {
 
 variable org_prefix {
   type = string
+}
+
+variable db_generation_number {
+  type = number
+  default = 0
 }

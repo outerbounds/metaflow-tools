@@ -79,7 +79,7 @@ module "infra" {
 }
 
 module "services" {
-  depends_on                          = [module.infra]
+  depends_on                          = [module.infra, data.google_container_cluster.default]
   source                              = "./services"
   metaflow_ui_static_service_image    = local.metaflow_ui_static_service_image
   metaflow_ui_backend_service_image   = local.metaflow_ui_backend_service_image

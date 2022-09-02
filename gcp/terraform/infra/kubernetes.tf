@@ -38,6 +38,7 @@ resource "google_container_cluster" "metaflow_kubernetes" {
     }
   }
   network = google_compute_network.metaflow_compute_network.name
+  subnetwork = google_compute_subnetwork.metaflow_subnet_for_kubernetes.name
   networking_mode = "VPC_NATIVE"
   # empty block is required
   ip_allocation_policy {}

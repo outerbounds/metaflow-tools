@@ -26,6 +26,7 @@ resource "null_resource" "argo-quick-start-installation" {
 }
 
 resource "null_resource" "argo-annotate-service-account" {
+  depends_on = [null_resource.argo-quick-start-installation]
   triggers = {
     cmd = local._annotate_cmd
   }

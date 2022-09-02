@@ -25,7 +25,7 @@ Save the key file locally to your home directory. It should be made to be access
 
 Configure your local Kubernetes context to point to the the right Kubernetes cluster:
 
-$ gcloud container clusters get-credentials ${local.kubernetes_cluster_name} --region=${local.region}
+$ gcloud container clusters get-credentials ${local.kubernetes_cluster_name} --region=${local.zone}
 
 STEP 2: Configure Metaflow:
 
