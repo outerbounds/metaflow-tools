@@ -57,18 +57,6 @@ variable "airflow_frenet_secret" {
   type = string
 }
 
-variable "airflow_dags_sync_prefix" {
-  type = string
-}
-
-variable "airflow_dag_sync_frequency" {
-  type = string
-}
-
-variable "airflow_executor" {
-  type = string
-}
-
 variable "deploy_argo" {
   type = bool
 }
@@ -77,6 +65,7 @@ variable "deploy_airflow" {
   type = bool
 }
 
-variable "metaflow_storage_container"{
-  type = string
+variable airflow_dags_folder {
+  type        = string
 }
+

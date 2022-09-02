@@ -89,7 +89,6 @@ module "services" {
   metaflow_ui_backend_service_image            = local.metaflow_ui_backend_service_image
   metaflow_datastore_sysroot_azure             = local.metaflow_datastore_sysroot_azure
   metaflow_storage_account_name                = data.azurerm_storage_account.default.name
-  metaflow_storage_container                   = data.azurerm_storage_container.default.name
   metaflow_azure_storage_blob_service_endpoint = data.azurerm_storage_account.default.primary_blob_endpoint
   metaflow_db_port                             = local.metaflow_db_port
   metaflow_db_name                             = local.metaflow_db_name
@@ -109,7 +108,5 @@ module "services" {
   
   airflow_version =  local.airflow_version
   airflow_frenet_secret =  local.airflow_frenet_secret
-  airflow_dags_sync_prefix =   local.airflow_dags_sync_prefix
-  airflow_dag_sync_frequency =   local.airflow_dag_sync_frequency
-  airflow_executor = local.airflow_executor
+  airflow_dags_folder = local.airflow_dags_folder
 }
