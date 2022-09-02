@@ -6,6 +6,7 @@ resource "kubernetes_namespace" "airflow" {
 }
 
 resource "helm_release" "airflow" {
+  count = var.deploy_airflow ? 1 : 0
   name       = "airflow-deployment"
 
   repository = "https://airflow.apache.org"
