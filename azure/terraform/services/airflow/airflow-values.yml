@@ -54,11 +54,11 @@ triggerer:
     - name: synchronised-dags
       mountPath: /dags
   extraContainers:
-    - name: bucket-sync
+    - name: cloud-sync
       envFrom:
         - secretRef:
             name: ${azure_credentials_secret}
-      image: valayob/bucket-sync:latest
+      image: valayob/cloud-sync:latest
       imagePullPolicy: Always
       args: [sync-azure-blobs,https://${azure_account_name}.blob.core.windows.net, ${azure_container_name}, ${dags_sync_prefix},/dags,--frequency, '${dag_sync_frequency}']
       volumeMounts:
@@ -73,11 +73,11 @@ workers:
     - name: synchronised-dags
       mountPath: /dags
   extraInitContainers:
-    - name: bucket-sync
+    - name: cloud-sync
       envFrom:
         - secretRef:
             name: ${azure_credentials_secret}
-      image: valayob/bucket-sync:latest
+      image: valayob/cloud-sync:latest
       imagePullPolicy: Always
       args: [sync-azure-blobs,https://${azure_account_name}.blob.core.windows.net, ${azure_container_name}, ${dags_sync_prefix},/dags,--only-once]
       volumeMounts:
@@ -92,11 +92,11 @@ scheduler:
     - name: synchronised-dags
       mountPath: /dags
   extraContainers:
-    - name: bucket-sync
+    - name: cloud-sync
       envFrom:
         - secretRef:
             name: ${azure_credentials_secret}
-      image: valayob/bucket-sync:latest
+      image: valayob/cloud-sync:latest
       imagePullPolicy: Always
       args: [sync-azure-blobs,https://${azure_account_name}.blob.core.windows.net, ${azure_container_name}, ${dags_sync_prefix},/dags,--frequency,'${dag_sync_frequency}']
       volumeMounts:

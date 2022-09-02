@@ -14,7 +14,6 @@ resource "azurerm_storage_container" "airflow_logs_container" {
   count = var.deploy_airflow ? 1 : 0
 }
 
-# S
 resource "azurerm_role_assignment" "airflow_storage_role_permissions" {
   scope                = azurerm_storage_container.airflow_logs_container[0].resource_manager_id
   role_definition_name = "Storage Blob Data Contributor"
