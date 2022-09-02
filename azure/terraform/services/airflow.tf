@@ -20,7 +20,7 @@ resource "helm_release" "airflow" {
               #: Read this (https://github.com/hashicorp/terraform-provider-helm/issues/683#issuecomment-830872443)
 
   values = [
-    templatefile("${path.module}/airflow-values.yml", {
+    templatefile("${path.module}/airflow/helm-values.yml", {
       airflow_version = var.airflow_version
       airflow_frenet_secret = var.airflow_frenet_secret
       airflow_executor = var.airflow_executor
