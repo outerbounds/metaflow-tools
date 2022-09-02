@@ -36,14 +36,6 @@ secret:
     secretKey: AZURE_TENANT_ID
 
 
-# ${airflow_version}
-# ${airflow_frenet_secret}
-# ${azure_account_name}
-# ${azure_container_name}
-# ${dags_sync_prefix}
-# ${dag_sync_frequency}
-# ${azure_credentials_secret}
-
 webserverSecretKey: ${airflow_frenet_secret}
 
 triggerer:
