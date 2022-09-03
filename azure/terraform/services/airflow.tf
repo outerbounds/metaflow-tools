@@ -19,6 +19,7 @@ resource "helm_release" "airflow" {
 
   wait = false # Why set `wait=false` 
               #: Read this (https://github.com/hashicorp/terraform-provider-helm/issues/683#issuecomment-830872443)
+              # Short summary : If this is not set then airflow doesn't end up running migrations on the database. That makes the scheduler and other containers to keep waiting for migrations. 
 
   values = [
     templatefile("${path.module}/airflow/helm-values.yml", {
