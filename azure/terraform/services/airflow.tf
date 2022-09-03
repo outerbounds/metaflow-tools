@@ -23,7 +23,6 @@ resource "helm_release" "airflow" {
   values = [
     templatefile("${path.module}/airflow/helm-values.yml", {
       airflow_version = var.airflow_version
-      airflow_dags_folder = var.airflow_dags_folder
       airflow_frenet_secret = var.airflow_frenet_secret
       azure_credentials_secret = var.metaflow_kubernetes_secret_name
       azure_account_name = var.metaflow_storage_account_name 

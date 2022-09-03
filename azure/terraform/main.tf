@@ -108,5 +108,4 @@ module "services" {
   
   airflow_version =  local.airflow_version
   airflow_frenet_secret =  local.airflow_frenet_secret
-  airflow_dags_folder = local.airflow_dags_folder
 }

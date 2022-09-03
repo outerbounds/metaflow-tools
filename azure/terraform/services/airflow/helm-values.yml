@@ -1,7 +1,4 @@
 executor: LocalExecutor
-config:
-  core:
-    dags_folder: "${airflow_dags_folder}"
 
 defaultAirflowTag: ${airflow_version} 
 

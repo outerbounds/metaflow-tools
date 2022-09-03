@@ -65,7 +65,3 @@ variable "deploy_airflow" {
   type = bool
 }
 
-variable airflow_dags_folder {
-  type        = string
-}
-

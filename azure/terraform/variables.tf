@@ -42,6 +42,5 @@ locals {
   # Airflow Related Options 
   airflow_version = "2.3.3"
   airflow_frenet_secret = "myverysecretvalue"
-  airflow_dags_folder = "/dags"
 }
 
