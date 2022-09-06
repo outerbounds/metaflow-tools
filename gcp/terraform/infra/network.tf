@@ -1,14 +1,14 @@
 resource "google_compute_network" "metaflow_compute_network" {
   provider = google-beta
 
-  name = "cnet-metaflow-${terraform.workspace}"
+  name = "vpc-metaflow-${terraform.workspace}"
   auto_create_subnetworks = false
 }
 
 resource "google_compute_subnetwork" "metaflow_subnet_for_kubernetes" {
   provider = google-beta
 
-  name          = "snet-metaflow-kubernetes-${terraform.workspace}"
+  name          = "subnet-metaflow-kubernetes-${terraform.workspace}"
   ip_cidr_range = "10.2.0.0/16"
   region        = var.region
   network       = google_compute_network.metaflow_compute_network.id

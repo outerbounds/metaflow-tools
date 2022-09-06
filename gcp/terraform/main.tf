@@ -18,9 +18,6 @@ terraform {
     }
   }
 }
-# TODO write a nice output format
-# TODO make a CI stack with this
-# TODO setup CI actions to do end to end testing
 
 # Configure kubernetes provider with Oauth2 access token.
 # https://registry.terraform.io/providers/hashicorp/google/latest/docs/data-sources/client_config

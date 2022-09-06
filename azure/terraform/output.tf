@@ -1,4 +1,5 @@
 output "END_USER_SETUP_INSTRUCTIONS" {
+  depends_on = [module.services]
   value = <<EOT
 V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V
 Setup instructions for END USERS (e.g. someone running Flows vs the new stack):

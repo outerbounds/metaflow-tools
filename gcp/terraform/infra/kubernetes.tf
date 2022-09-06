@@ -1,7 +1,7 @@
 resource "google_service_account" "metaflow_kubernetes_control_plane_service_account" {
   provider = google-beta
   # TODO fix names (e.g. gsa would be nice)
-  # TODO also names could be longer
+  # gsa-metaflow-k8s-ctrl-<workspace>
   account_id   = "sa-mf-k8s-${terraform.workspace}"
   display_name = "Service Account for Kubernetes Control Plane (${terraform.workspace})"
 }
