@@ -31,7 +31,6 @@ This is used to help generate unique resource names for:
 * Azure storage account name
 Note: these resources must be globally unique across all of Azure.
 
-The template also provides the `deploy_airflow` and `deploy_argo` flags. These are booleans that specify if [Airflow](https://airflow.apache.org/) or [Argo Workflows](https://argoproj.github.io/argo-workflows/) will be deployed in the Kubernetes cluster along with Metaflow related services. By default `deploy_argo` is set to __true__ and `deploy_airflow` is set to __false__.
 
 Next, apply the `infra` module (creates Azure cloud resources only).
 
@@ -85,6 +84,9 @@ The step above will output next steps for Metaflow end users.
 ## Metaflow job orchestration options
 The recommended way to orchestrate Metaflow workloads on Kubernetes is via [Argo Workflows](https://docs.metaflow.org/going-to-production-with-metaflow/scheduling-metaflow-flows/scheduling-with-argo-workflows). However, Airflow is also supported as an alternative.
 
+The template also provides the `deploy_airflow` and `deploy_argo` flags as variables. These are booleans that specify if [Airflow](https://airflow.apache.org/) or [Argo Workflows](https://argoproj.github.io/argo-workflows/) will be deployed in the Kubernetes cluster along with Metaflow related services. By default `deploy_argo` is set to __true__ and `deploy_airflow` is set to __false__.
+To change these, set them in your `FILE.tfvars` file (or else, via other [terraform variable](https://www.terraform.io/language/values/variables) passing mechanisms)
+
 ### Argo Workflows
 Argo Workflows is installed by default on the AKS cluster as part of the `services` submodule. Setting the `deploy_argo` [variable](./variables.tf) will deploy Argo in the AKS cluster. Not additional configuration is done in the `infra` module to support `argo`.
 
@@ -94,7 +96,7 @@ After you have changed the value of `deploy_argo`, reapply terraform for both [i
 
 **This is quickstart template only, not recommended for real production deployments**
 
-If `deploy_airflow`[variable](./variables.tf) is set to true, then the `infra` module will create one more storage blob-container named `airflow-logs` and provide blob-container R/W permissions to the service principal. We create this extra blob-container because Airflow expects the blob-container where it ships logs on Azure to be named `airflow-logs`.
+If `deploy_airflow`  is set to true, then the `infra` module will create one more storage blob-container named `airflow-logs` and provide blob-container R/W permissions to the service principal. We create this extra blob-container because Airflow expects the blob-container where it ships logs on Azure to be named `airflow-logs`.
 
 The `services` module will deploy Airflow via a [helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html) into the kubernetes cluster (the one deployed by the `infra` module). The Airflow installation will store all the logs in the `airflow-logs` blob-container. The terraform template deploys Airflow configured with a `LocalExecutor`. Metaflow can work with any Airflow executor. This template deploys the `LocalExecutor` for simplicity.
 
