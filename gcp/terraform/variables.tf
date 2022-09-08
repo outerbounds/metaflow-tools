@@ -17,7 +17,8 @@ locals {
   metaflow_datastore_sysroot_gs = "gs://${local.storage_bucket_name}/tf-full-stack-sysroot"
 
   metaflow_ui_static_service_image = "public.ecr.aws/outerbounds/metaflow_ui:v1.1.4"
-  metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
+  # metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
+  metaflow_ui_backend_service_image = "jackieob/metadata_service:gcp.rc1"
   metadata_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
   # TODO gsa-metaflow-workload-id-<workspace>
   metaflow_workload_identity_gsa_name = "gsa-metaflow-${terraform.workspace}"

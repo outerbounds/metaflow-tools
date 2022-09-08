@@ -56,8 +56,8 @@ resource "kubernetes_deployment" "metaflow-ui-backend-service" {
           }
           resources {
             requests = {
-              memory = "1000M"
-              cpu = "500m"
+              memory = "2G"
+              cpu = "1000m"
             }
           }
           env {
