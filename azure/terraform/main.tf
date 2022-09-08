@@ -75,7 +75,7 @@ module "infra" {
   virtual_network_name                    = local.virtual_network_name
   db_subnet_name                          = local.db_subnet_name
   k8s_subnet_name                         = local.k8s_subnet_name
-  deploy_airflow                          = local.deploy_airflow
+  deploy_airflow                          = var.deploy_airflow
 }
 
 module "services" {
@@ -101,8 +101,8 @@ module "services" {
     AZURE_CLIENT_SECRET = module.infra.service_principal_client_secret
   }
   
-  deploy_airflow                          = local.deploy_airflow
-  deploy_argo                             = local.deploy_argo
+  deploy_airflow                          = var.deploy_airflow
+  deploy_argo                             = var.deploy_argo
   
   airflow_version =  local.airflow_version
   airflow_frenet_secret =  local.airflow_frenet_secret

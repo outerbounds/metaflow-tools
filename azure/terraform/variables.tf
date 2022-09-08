@@ -30,12 +30,7 @@ locals {
   metaflow_db_password = "metaflow" # DB is private, accessible only within vnet.
   metaflow_db_port = 5432
 
-  # Flags to deploy argo or airflow
-  deploy_argo = true
-  deploy_airflow = false
-
-
-  # Airflow Related Options 
+  # Airflow Related Options
   airflow_version = "2.3.3"
   airflow_frenet_secret = "myverysecretvalue"
 }
@@ -47,4 +42,14 @@ locals {
 #
 variable "org_prefix" {
   type = string
+}
+
+variable "deploy_argo" {
+  type = bool
+  default = true
+}
+
+variable "deploy_airflow" {
+  type = bool
+  default = false
 }
