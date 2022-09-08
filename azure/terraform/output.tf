@@ -33,20 +33,22 @@ STEP 2: Configure Metaflow:
 
 Option 1: Create JSON config directly
 
-Create the file "~/.metaflowconfig/config.json" with this content. If this file already exists, keep a backup of it and
-move it aside first.
-
+Create the file "~/.metaflowconfig/config.json" with this content. If this file already exists, keep a backup of it and move it aside first. 
 {
     "METAFLOW_AZURE_STORAGE_BLOB_SERVICE_ENDPOINT": "${data.azurerm_storage_account.default.primary_blob_endpoint}",
     "METAFLOW_DATASTORE_SYSROOT_AZURE": "${local.metaflow_datastore_sysroot_azure}",
     "METAFLOW_DEFAULT_DATASTORE": "azure",
     "METAFLOW_DEFAULT_METADATA": "service",
     "METAFLOW_KUBERNETES_NAMESPACE": "default",
-    "METAFLOW_KUBERNETES_SECRETS": "metaflow-azure-storage-credentials",
+    "METAFLOW_KUBERNETES_SECRETS": "${local.metaflow_kubernetes_secret_name}",
     "METAFLOW_KUBERNETES_SERVICE_ACCOUNT": "default",
     "METAFLOW_SERVICE_INTERNAL_URL": "http://metadata-service.default:8080/",
     "METAFLOW_SERVICE_URL": "http://127.0.0.1:8080/"
 }
+
+If deployed with Airflow or Argo then remove the `METAFLOW_KUBERNETES_SERVICE_ACCOUNT` key from the json file. 
+If deployed with Airflow set `METAFLOW_KUBERNETES_NAMESPACE` to "airflow". 
+If deployed with Argo set `METAFLOW_KUBERNETES_NAMESPACE` to "argo". 
 
 Option 2: Interactive configuration
 
@@ -57,11 +59,12 @@ $ metaflow configure kubernetes
 
 Use these values when prompted:
 
-METAFLOW_AZURE_STORAGE_BLOB_SERVICE_ENDPOINT=${data.azurerm_storage_account.default.primary_blob_endpoint}
 METAFLOW_DATASTORE_SYSROOT_AZURE=${local.metaflow_datastore_sysroot_azure}
+METAFLOW_AZURE_STORAGE_BLOB_SERVICE_ENDPOINT=${data.azurerm_storage_account.default.primary_blob_endpoint}
+METAFLOW_KUBERNETES_SECRETS=${local.metaflow_kubernetes_secret_name}
 METAFLOW_SERVICE_URL=http://127.0.0.1:8080/
 METAFLOW_SERVICE_INTERNAL_URL=http://metadata-service.default:8080/
-METAFLOW_KUBERNETES_SECRETS=${local.metaflow_kubernetes_secrets}
+[For Airflow only] METAFLOW_KUBERNETES_NAMESPACE=airflow
 [For Argo only] METAFLOW_KUBERNETES_NAMESPACE=argo
 
 Note: you can skip these:
@@ -81,7 +84,7 @@ $ kubectl port-forward -n argo deployment/argo-server 2746:2746
 
 option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
-$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo]
+$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
 STEP 4: Install Azure Python SDK
 $ pip install azure-storage-blob azure-identity

@@ -1,0 +1,33 @@
+executor: LocalExecutor
+
+defaultAirflowTag: ${airflow_version} 
+
+# Default airflow tag to deploy
+defaultAirflowTag: ${airflow_version} 
+
+# Airflow version (Used to make some decisions based on Airflow Version being deployed)
+airflowVersion: ${airflow_version} 
+
+env:
+  - name: AIRFLOW__LOGGING__REMOTE_LOGGING
+    value: "True"
+  - name: AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER
+    value: 'wasb-logs' 
+  - name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
+    value: "azure_default"
+  - name: AIRFLOW_CONN_AZURE_DEFAULT
+    value: '{"login":"${azure_account_name}"}'
+
+secret:
+  - envName: AZURE_CLIENT_ID
+    secretName: ${azure_credentials_secret}
+    secretKey: AZURE_CLIENT_ID
+  - envName: AZURE_CLIENT_SECRET
+    secretName: ${azure_credentials_secret}
+    secretKey: AZURE_CLIENT_SECRET
+  - envName: AZURE_TENANT_ID
+    secretName: ${azure_credentials_secret}
+    secretKey: AZURE_TENANT_ID
+
+
+webserverSecretKey: ${airflow_frenet_secret}
