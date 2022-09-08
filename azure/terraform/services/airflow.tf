@@ -13,7 +13,6 @@ resource "helm_release" "airflow" {
   chart      = "airflow"
   
   namespace = "airflow"
-  version    = "1.6.0"
 
   timeout = 1200
 

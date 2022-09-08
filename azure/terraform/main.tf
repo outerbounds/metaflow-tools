@@ -54,13 +54,11 @@ provider "azurerm" {
 
 provider "helm" {
   kubernetes {
-    config_path = local_file.helm_kubeconfig.filename
+    host                   = data.azurerm_kubernetes_cluster.default.kube_config.0.host
+    client_certificate     = base64decode(data.azurerm_kubernetes_cluster.default.kube_config.0.client_certificate)
+    client_key             = base64decode(data.azurerm_kubernetes_cluster.default.kube_config.0.client_key)
+    cluster_ca_certificate = base64decode(data.azurerm_kubernetes_cluster.default.kube_config.0.cluster_ca_certificate)
   }
-}
-
-resource "local_file" "helm_kubeconfig" {
-  content = data.azurerm_kubernetes_cluster.default.kube_config_raw
-  filename = "${path.root}/kubeconfig_${terraform.workspace}"
 }
 
 module "infra" {
