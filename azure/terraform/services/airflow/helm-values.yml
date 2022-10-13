@@ -31,3 +31,10 @@ secret:
 
 
 webserverSecretKey: ${airflow_frenet_secret}
+
+scheduler:
+  livenessProbe:
+    command:
+      - sh
+      - -c
+      - CONNECTION_CHECK_MAX_COUNT=0 AIRFLOW__LOGGING__LOGGING_LEVEL=ERROR exec /entrypoint airflow jobs check --job-type SchedulerJob
