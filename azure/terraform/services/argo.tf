@@ -37,7 +37,8 @@ resource "null_resource" "argo-quick-start-installation" {
 }
 
 resource "null_resource" "argo-events-quick-start" {
-  count = var.deploy_argo_events ? 1 : 0
+  count      = var.deploy_argo_events ? 1 : 0
+  depends_on = [null_resource.argo-quick-start-installation]
   triggers = {
     cmd = local._argo_events_cmd
   }
@@ -48,7 +49,8 @@ resource "null_resource" "argo-events-quick-start" {
 }
 
 resource "null_resource" "argo-events-service-accounts" {
-  count = var.deploy_argo_events ? 1 : 0
+  count      = var.deploy_argo_events ? 1 : 0
+  depends_on = [null_resource.argo-events-quick-start]
   triggers = {
     cmd = local._service_accts_cmd
   }
@@ -59,7 +61,8 @@ resource "null_resource" "argo-events-service-accounts" {
 }
 
 resource "null_resource" "argo-events-event-bus" {
-  count = var.deploy_argo_events ? 1 : 0
+  count      = var.deploy_argo_events ? 1 : 0
+  depends_on = [null_resource.argo-events-quick-start]
   triggers = {
     cmd = local._event_bus_cmd
   }
@@ -70,7 +73,8 @@ resource "null_resource" "argo-events-event-bus" {
 }
 
 resource "null_resource" "argo-events-webhook-source" {
-  count = var.deploy_argo_events ? 1 : 0
+  count      = var.deploy_argo_events ? 1 : 0
+  depends_on = [null_resource.argo-events-event-bus]
   triggers = {
     cmd = local._webhook_source_cmd
   }
