@@ -45,8 +45,8 @@ data "google_sql_database_instance" "default" {
 }
 
 provider "kubernetes" {
-  host                   = "https://${data.google_container_cluster.default.endpoint}"
-  token                  = data.google_client_config.default.access_token
+  host  = "https://${data.google_container_cluster.default.endpoint}"
+  token = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(
     data.google_container_cluster.default.master_auth[0].cluster_ca_certificate,
   )
@@ -93,4 +93,5 @@ module "services" {
   metaflow_workload_identity_ksa_name = local.metaflow_workload_identity_ksa_name
   metadata_service_image              = local.metadata_service_image
   kubeconfig_path                     = local_file.kubeconfig.filename
+  deploy_argo_events                  = var.deploy_argo_events
 }
