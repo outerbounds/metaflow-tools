@@ -23,18 +23,18 @@ resource "null_resource" "argo-quick-start-installation" {
   }
   provisioner "local-exec" {
     interpreter = local.is_windows ? ["PowerShell"] : null
-    command = local.is_windows ? "$env:KUBECONFIG='${var.kubeconfig_path}'; ${local._apply_cmd}" : "KUBECONFIG=${var.kubeconfig_path} ${local._apply_cmd}"
+    command     = local.is_windows ? "$env:KUBECONFIG='${var.kubeconfig_path}'; ${local._apply_cmd}" : "KUBECONFIG=${var.kubeconfig_path} ${local._apply_cmd}"
   }
 }
 
 resource "null_resource" "argo-annotate-service-account" {
-  count = var.deploy_argo ? 1 : 0
+  count      = var.deploy_argo ? 1 : 0
   depends_on = [null_resource.argo-quick-start-installation]
   triggers = {
     cmd = local._annotate_cmd
   }
   provisioner "local-exec" {
     interpreter = local.is_windows ? ["PowerShell"] : null
-    command = local.is_windows ? "$env:KUBECONFIG='${var.kubeconfig_path}'; ${local._annotate_cmd}" : "KUBECONFIG=${var.kubeconfig_path} ${local._annotate_cmd}"
+    command     = local.is_windows ? "$env:KUBECONFIG='${var.kubeconfig_path}'; ${local._annotate_cmd}" : "KUBECONFIG=${var.kubeconfig_path} ${local._annotate_cmd}"
   }
 }
