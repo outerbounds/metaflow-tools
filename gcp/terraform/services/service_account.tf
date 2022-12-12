@@ -13,8 +13,9 @@ resource "google_service_account_iam_binding" "metaflow-service-account-iam" {
   service_account_id = var.metaflow_workload_identity_gsa_id
   role               = "roles/iam.workloadIdentityUser"
 
-  members = [
+  members = flatten([
     "serviceAccount:${var.project}.svc.id.goog[${kubernetes_service_account.metaflow_service_account.id}]",
-    "serviceAccount:${var.project}.svc.id.goog[argo/argo]",
-  ]
+    var.deploy_airflow ? ["serviceAccount:${var.project}.svc.id.goog[airflow/airflow-scheduler]"] : [],
+    var.deploy_argo ? ["serviceAccount:${var.project}.svc.id.goog[argo/argo]"] : [],
+  ])
 }

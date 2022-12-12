@@ -16,6 +16,8 @@ locals {
   storage_bucket_name = "storage-${var.org_prefix}-metaflow-${terraform.workspace}"
   metaflow_datastore_sysroot_gs = "gs://${local.storage_bucket_name}/tf-full-stack-sysroot"
 
+  airflow_logs_bucket_path = "gs://${local.storage_bucket_name}/airflow/logs"
+
   metaflow_ui_static_service_image = "public.ecr.aws/outerbounds/metaflow_ui:v1.1.4"
   # metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
   metaflow_ui_backend_service_image = "jackieob/metadata_service:gcp.rc1"

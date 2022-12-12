@@ -81,6 +81,7 @@ module "services" {
   metaflow_ui_static_service_image    = local.metaflow_ui_static_service_image
   metaflow_ui_backend_service_image   = local.metaflow_ui_backend_service_image
   metaflow_datastore_sysroot_gs       = local.metaflow_datastore_sysroot_gs
+  airflow_logs_bucket_path = local.airflow_logs_bucket_path
   metaflow_db_host                    = "localhost"
   metaflow_db_name                    = "metaflow"
   metaflow_db_user                    = "metaflow"

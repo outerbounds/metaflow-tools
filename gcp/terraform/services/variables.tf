@@ -57,3 +57,26 @@ variable metadata_service_image {
 variable "kubeconfig_path" {
   type = string
 }
+
+
+variable "airflow_version" {
+  type = string
+}
+
+variable "airflow_frenet_secret" {
+  type = string
+}
+
+
+variable "deploy_argo" {
+  type = bool
+}
+
+variable "deploy_airflow" {
+  type = bool
+}
+
+variable airflow_logs_bucket_path {
+  type        = string
+}
+
