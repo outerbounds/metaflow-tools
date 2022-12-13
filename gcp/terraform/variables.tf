@@ -27,6 +27,9 @@ locals {
 
   metaflow_workload_identity_ksa_name = "ksa-metaflow"
   service_account_key_file            = "${path.root}/metaflow_gsa_key_${terraform.workspace}.json"
+
+  airflow_version       = "2.3.5"
+  airflow_frenet_secret = "myverysecretvalue"
 }
 
 variable "project" {
@@ -40,4 +43,14 @@ variable "org_prefix" {
 variable "db_generation_number" {
   type    = number
   default = 0
+}
+
+variable "deploy_argo" {
+  type    = bool
+  default = true
+}
+
+variable "deploy_airflow" {
+  type    = bool
+  default = false
 }

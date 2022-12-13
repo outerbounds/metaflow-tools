@@ -1,12 +1,12 @@
 executor: LocalExecutor
 
-defaultAirflowTag: ${airflow_version} 
+defaultAirflowTag: ${airflow_version}
 
 # Default airflow tag to deploy
-defaultAirflowTag: ${airflow_version} 
+defaultAirflowTag: ${airflow_version}
 
 # Airflow version (Used to make some decisions based on Airflow Version being deployed)
-airflowVersion: ${airflow_version} 
+airflowVersion: ${airflow_version}
 
 env:
   - name: AIRFLOW__LOGGING__REMOTE_LOGGING
