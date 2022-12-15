@@ -58,6 +58,8 @@ METAFLOW_SERVICE_URL=http://127.0.0.1:8080/
 METAFLOW_SERVICE_INTERNAL_URL=http://metadata-service.default:8080/
 [For Argo only] METAFLOW_KUBERNETES_NAMESPACE=argo
 [For Argo only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=argo
+[For Airflow only] METAFLOW_KUBERNETES_NAMESPACE=airflow
+[For Airflow only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=airflow-deployment-scheduler
 [For non-Argo only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=${local.metaflow_workload_identity_ksa_name}
 
 Note: you can skip these:
@@ -76,7 +78,7 @@ $ kubectl port-forward -n argo deployment/argo-server 2746:2746
 
 option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
-$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo]
+$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo][--include-airflow]
 
 STEP 4: Install GCP Python SDK
 $ pip install google-cloud-storage google-auth

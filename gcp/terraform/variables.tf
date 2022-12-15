@@ -28,7 +28,7 @@ locals {
   metaflow_workload_identity_ksa_name = "ksa-metaflow"
   service_account_key_file            = "${path.root}/metaflow_gsa_key_${terraform.workspace}.json"
 
-  airflow_version       = "2.3.5"
+  airflow_version       = "2.5.0"
   airflow_frenet_secret = "myverysecretvalue"
 }
 

@@ -15,7 +15,7 @@ resource "google_service_account_iam_binding" "metaflow-service-account-iam" {
 
   members = flatten([
     "serviceAccount:${var.project}.svc.id.goog[${kubernetes_service_account.metaflow_service_account.id}]",
-    var.deploy_airflow ? ["serviceAccount:${var.project}.svc.id.goog[airflow/airflow-scheduler]"] : [],
+    var.deploy_airflow ? ["serviceAccount:${var.project}.svc.id.goog[airflow/airflow-deployment-scheduler]"] : [],
     var.deploy_argo ? ["serviceAccount:${var.project}.svc.id.goog[argo/argo]"] : [],
   ])
 }

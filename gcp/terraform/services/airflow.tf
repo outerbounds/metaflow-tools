@@ -12,7 +12,7 @@ resource "helm_release" "airflow" {
   repository = "https://airflow.apache.org"
   chart      = "airflow"
 
-  namespace = "airflow"
+  namespace = kubernetes_namespace.airflow[0].metadata[0].name
 
   timeout = 1200
 
@@ -29,4 +29,18 @@ resource "helm_release" "airflow" {
 
     })
   ]
+}
+# annotation is added to the scheduler's pod so that the pod's service account can 
+# talk to Google cloud storage. 
+resource "kubernetes_annotations" "airflow_service_account_annotation" {
+  count = var.deploy_airflow ? 1 : 0
+  api_version = "v1"
+  kind        = "ServiceAccount"
+  metadata {
+    name      = "airflow-deployment-scheduler"
+    namespace = kubernetes_namespace.airflow[0].metadata[0].name
+  }
+  annotations = {
+    "iam.gke.io/gcp-service-account" = "${var.metaflow_workload_identity_gsa_name}@${var.project}.iam.gserviceaccount.com"
+  }
 }
