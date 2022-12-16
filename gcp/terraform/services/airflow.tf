@@ -5,6 +5,16 @@ resource "kubernetes_namespace" "airflow" {
   }
 }
 
+locals {
+  airflow_values = {
+    "executor" = "LocalExecutor"
+    "defaultAirflowTag" = var.airflow_version
+    "airflowVersion" = var.airflow_version
+    "webserverSecretKey" = var.airflow_frenet_secret
+  }
+}
+
+
 resource "helm_release" "airflow" {
   count = var.deploy_airflow ? 1 : 0
   name  = "airflow-deployment"
@@ -21,13 +31,7 @@ resource "helm_release" "airflow" {
   # Short summary : If this is not set then airflow doesn't end up running migrations on the database. That makes the scheduler and other containers to keep waiting for migrations. 
 
   values = [
-    templatefile("${path.module}/airflow/helm-values.yml", {
-      airflow_version          = var.airflow_version
-      airflow_frenet_secret    = var.airflow_frenet_secret
-      project_name             = var.project
-      airflow_logs_bucket_path = var.airflow_logs_bucket_path
-
-    })
+    yamlencode(local.airflow_values)
   ]
 }
 # annotation is added to the scheduler's pod so that the pod's service account can 

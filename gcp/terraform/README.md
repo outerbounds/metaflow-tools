@@ -67,7 +67,7 @@ After you have changed the value of `deploy_argo`, reapply terraform for both [i
 
 If `deploy_airflow`  is set to true, then the `services` module will deploy Airflow via a [helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html) into the kubernetes cluster (the one deployed by the `infra` module). 
 
-The Airflow installation will store all the logs under the `/airflow/logs` folder inside the storage bucket created by the `infra` module. The terraform template deploys Airflow configured with a `LocalExecutor`. Metaflow can work with any Airflow executor. This template deploys the `LocalExecutor` for simplicity.
+The terraform template deploys Airflow configured with a `LocalExecutor`. Metaflow can work with any Airflow executor. This template deploys the `LocalExecutor` for simplicity.
 
 After you have changed the value of `deploy_airflow`, reapply terraform for both [infra and services](#usage).
 
