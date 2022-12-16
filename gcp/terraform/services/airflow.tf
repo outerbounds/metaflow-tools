@@ -34,6 +34,7 @@ resource "helm_release" "airflow" {
 # talk to Google cloud storage. 
 resource "kubernetes_annotations" "airflow_service_account_annotation" {
   count = var.deploy_airflow ? 1 : 0
+  depends_on = [helm_release.airflow]
   api_version = "v1"
   kind        = "ServiceAccount"
   metadata {
