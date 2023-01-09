@@ -16,6 +16,10 @@ terraform {
       source  = "hashicorp/local"
       version = "2.2.3"
     }
+    helm = {
+      source  = "hashicorp/helm"
+      version = "2.6.0"
+    }
   }
 }
 
@@ -45,11 +49,21 @@ data "google_sql_database_instance" "default" {
 }
 
 provider "kubernetes" {
-  host                   = "https://${data.google_container_cluster.default.endpoint}"
-  token                  = data.google_client_config.default.access_token
+  host  = "https://${data.google_container_cluster.default.endpoint}"
+  token = data.google_client_config.default.access_token
   cluster_ca_certificate = base64decode(
     data.google_container_cluster.default.master_auth[0].cluster_ca_certificate,
   )
+}
+provider "helm" {
+  kubernetes {
+    host                   = "https://${data.google_container_cluster.default.endpoint}"
+    cluster_ca_certificate = base64decode(data.google_container_cluster.default.master_auth[0].cluster_ca_certificate)
+    token                  = data.google_client_config.default.access_token
+    # token is required here and we remove `client_certificate` / `client_key` because it results in this error like : 
+    # `Error: unable to build kubernetes objects from release manifest: unknown`
+    # More notes on this issue can be found here : https://github.com/hashicorp/terraform-provider-helm/issues/513
+  }
 }
 
 # This will be used for invoking kubectl re: Argo installation
@@ -81,6 +95,7 @@ module "services" {
   metaflow_ui_static_service_image    = local.metaflow_ui_static_service_image
   metaflow_ui_backend_service_image   = local.metaflow_ui_backend_service_image
   metaflow_datastore_sysroot_gs       = local.metaflow_datastore_sysroot_gs
+  airflow_logs_bucket_path            = local.airflow_logs_bucket_path
   metaflow_db_host                    = "localhost"
   metaflow_db_name                    = "metaflow"
   metaflow_db_user                    = "metaflow"
@@ -93,4 +108,8 @@ module "services" {
   metaflow_workload_identity_ksa_name = local.metaflow_workload_identity_ksa_name
   metadata_service_image              = local.metadata_service_image
   kubeconfig_path                     = local_file.kubeconfig.filename
+  deploy_airflow                      = var.deploy_airflow
+  deploy_argo                         = var.deploy_argo
+  airflow_version                     = local.airflow_version
+  airflow_frenet_secret               = local.airflow_frenet_secret
 }
