@@ -1127,7 +1127,7 @@ Resources:
                 echo 'export AWS_DEFAULT_REGION=${AWS::Region}' >> /etc/profile.d/jupyter-env.sh
                 echo 'export METAFLOW_DEFAULT_DATASTORE=s3' >> /etc/profile.d/jupyter-env.sh
                 echo 'export METAFLOW_DEFAULT_METADATA=service' >> /etc/profile.d/jupyter-env.sh
-                initctl restart jupyter-server --no-wait
+                systemctl restart jupyter-server
       OnStart:
         - Content:
             Fn::Base64:
