@@ -111,4 +111,8 @@ Create the name of the service account to use
 - name: MF_METADATA_DB_HOST
   value: {{ .Release.Name }}-postgresql
 {{- end -}}
+{{- if .Values.metadatadb.schema }}
+- name: DB_SCHEMA_NAME
+  value: {{ .Values.metadatadb.schema | quote }}
+{{- end }}
 {{- end -}}
