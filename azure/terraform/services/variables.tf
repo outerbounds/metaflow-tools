@@ -42,10 +42,10 @@ variable "metaflow_azure_storage_blob_service_endpoint" {
 }
 
 variable "azure_storage_credentials" {
-  type = map
+  type = map(any)
 }
 
-variable "metaflow_kubernetes_secret_name"{
+variable "metaflow_kubernetes_secret_name" {
   type = string
 }
 
@@ -58,6 +58,10 @@ variable "airflow_frenet_secret" {
 }
 
 variable "deploy_argo" {
+  type = bool
+}
+
+variable "deploy_argo_events" {
   type = bool
 }
 
