@@ -92,7 +92,7 @@ Mappings:
     ServiceName:
       value: 'metadata-service-v2'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.2.3'
+      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
     ContainerPort:
       value: 8080
     ContainerCpu:
@@ -113,7 +113,7 @@ Mappings:
     ServiceName:
       value: 'metaflow-ui-service'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.2.3'
+      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
     ContainerPort:
       value: 8083
     ContainerCpu:
@@ -134,7 +134,7 @@ Mappings:
     ServiceName:
       value: 'metadata-ui-static'
     ImageUrl:
-      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.1.1'
+      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.2.4'
     ContainerPort:
       value: 3000
     ContainerCpu:
@@ -1127,7 +1127,7 @@ Resources:
                 echo 'export AWS_DEFAULT_REGION=${AWS::Region}' >> /etc/profile.d/jupyter-env.sh
                 echo 'export METAFLOW_DEFAULT_DATASTORE=s3' >> /etc/profile.d/jupyter-env.sh
                 echo 'export METAFLOW_DEFAULT_METADATA=service' >> /etc/profile.d/jupyter-env.sh
-                initctl restart jupyter-server --no-wait
+                systemctl restart jupyter-server
       OnStart:
         - Content:
             Fn::Base64:

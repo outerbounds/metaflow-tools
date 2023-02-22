@@ -1,3 +1,5 @@
+data "azuread_client_config" "current" {}
+
 # Add an application, a service principal, and a password for the service principal
 # This single service principal have access to:
 # - Metaflow's storage container
@@ -6,10 +8,12 @@
 # E.g. an end user needs to be able to access Metaflow storage AND submit jobs to AKS (possibly)
 resource "azuread_application" "service_principal_application" {
   display_name = var.service_principal_name
+  owners       = [data.azuread_client_config.current.object_id]
 }
 
 resource "azuread_service_principal" "service_principal" {
   application_id = azuread_application.service_principal_application.application_id
+  owners       = [data.azuread_client_config.current.object_id]
 }
 
 # This will be used as a AZURE_CLIENT_SECRET in Metaflow's AKS workloads
