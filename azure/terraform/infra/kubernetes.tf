@@ -34,7 +34,7 @@ resource "azurerm_kubernetes_cluster" "metaflow_kubernetes" {
 resource "azurerm_kubernetes_cluster_node_pool" "metaflow_kubernetes_compute_node_pool" {
   name                  = "taskworkers"
   kubernetes_cluster_id = azurerm_kubernetes_cluster.metaflow_kubernetes.id
-  vm_size               = "Standard_D8_v5"
+  vm_size               = "Standard_D4_v5"
   node_count            = 1
   enable_auto_scaling = true
   vnet_subnet_id = azurerm_subnet.metaflow_kubernetes_subnet.id

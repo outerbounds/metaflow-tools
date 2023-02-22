@@ -28,12 +28,12 @@ resource "google_container_cluster" "metaflow_kubernetes" {
     enabled = true
     resource_limits {
       resource_type = "cpu"
-      minimum = 2
+      minimum = 1
       maximum = 200
     }
     resource_limits {
       resource_type = "memory"
-      minimum = 4
+      minimum = 2
       maximum = 400
     }
   }
