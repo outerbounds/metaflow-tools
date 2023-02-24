@@ -14,7 +14,7 @@ resource "kubernetes_namespace" "argo-events" {
 
 locals {
   is_windows          = substr(pathexpand("~"), 0, 1) == "/" ? false : true
-  _argo_cmd           = "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-workflows/master/manifests/quick-start-postgres.yaml"
+  _argo_cmd           = "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/latest/download/quick-start-postgres.yaml"
   _argo_events_cmd    = "kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/v1.7.3/manifests/install.yaml"
   _service_accts_cmd  = "kubectl apply -n argo -f ${path.module}/argo_events/service_accounts.yaml"
   _event_bus_cmd      = "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/v1.7.3/examples/eventbus/native.yaml"
