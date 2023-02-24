@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "argo" {
 
 locals {
   is_windows = substr(pathexpand("~"), 0, 1) == "/" ? false : true
-  _kubectl_cmd = "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-workflows/master/manifests/quick-start-postgres.yaml"
+  _kubectl_cmd = "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/latest/download/quick-start-postgres.yaml"
 }
 
 # Yes local-exec is unfortunate.
