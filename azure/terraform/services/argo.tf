@@ -14,10 +14,10 @@ resource "kubernetes_namespace" "argo-events" {
 
 locals {
   is_windows          = substr(pathexpand("~"), 0, 1) == "/" ? false : true
-  _argo_cmd           = "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/latest/download/quick-start-postgres.yaml"
-  _argo_events_cmd    = "kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/stable/manifests/install.yaml"
+  _argo_cmd           = var.argo_workflows_version == "latest" ? "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/latest/download/quick-start-postgres.yaml" : "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/${var.argo_workflows_version}/quick-start-postgres.yaml"
+  _argo_events_cmd    = "kubectl apply -f https://raw.githubusercontent.com/argoproj/argo-events/${var.argo_events_version}/manifests/install.yaml"
   _service_accts_cmd  = "kubectl apply -n argo -f ${path.module}/argo_events/service_accounts.yaml"
-  _event_bus_cmd      = "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/stable/examples/eventbus/native.yaml"
+  _event_bus_cmd      = "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-events/${var.argo_events_version}/examples/eventbus/native.yaml"
   _webhook_source_cmd = "kubectl apply -n argo -f ${path.module}/argo_events/webhook_source.yaml"
 }
 

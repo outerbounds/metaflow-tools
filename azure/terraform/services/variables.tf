@@ -57,6 +57,14 @@ variable "airflow_frenet_secret" {
   type = string
 }
 
+variable "argo_workflows_version" {
+  type = string
+}
+
+variable "argo_events_version" {
+  type = string
+}
+
 variable "deploy_argo" {
   type = bool
 }

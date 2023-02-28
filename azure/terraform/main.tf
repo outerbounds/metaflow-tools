@@ -107,4 +107,7 @@ module "services" {
 
   airflow_version       = local.airflow_version
   airflow_frenet_secret = local.airflow_frenet_secret
+
+  argo_workflows_version = local.argo_workflows_version
+  argo_events_version    = local.argo_events_version
 }

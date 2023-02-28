@@ -19,9 +19,9 @@ locals {
   k8s_subnet_name                = "snet-${var.org_prefix}-metaflow-k8s-${local.location}-${terraform.workspace}"
 
   # Changeable after initial "terraform apply" (e.g. image upgrades, secret rotation)
-  metadata_service_image            = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
-  metaflow_ui_static_service_image  = "public.ecr.aws/outerbounds/metaflow_ui:v1.1.4"
-  metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.3"
+  metadata_service_image            = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.6"
+  metaflow_ui_static_service_image  = "public.ecr.aws/outerbounds/metaflow_ui:v1.2.4"
+  metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.6"
   metaflow_kubernetes_secret_name   = "metaflow-azure-storage-credentials"
 
   # Forever constants
@@ -30,9 +30,19 @@ locals {
   metaflow_db_password                 = "metaflow" # DB is private, accessible only within vnet.
   metaflow_db_port                     = 5432
 
-  # Airflow Related Options
+  # Changeable Airflow Related Options
+  # See https://airflow.apache.org/docs/apache-airflow/stable/release_notes.html
   airflow_version       = "2.3.3"
   airflow_frenet_secret = "myverysecretvalue"
+
+  # Changeable Argo Related Options
+  # In non-production/test environments these versions may be set as "latest".  If this repo is 
+  # used as a starting point for your production k8s cluster used for Metaflow, then it is a best
+  # practice to set specific version numbers here that are tracked in your own version control repository. 
+  # See https://github.com/argoproj/argo-workflows/releases
+  argo_workflows_version = "v3.4.4"
+  # See https://github.com/argoproj/argo-events/releases
+  argo_events_version = "v1.7.6"
 }
 
 # You MUST set this to ensure global (Azure-wide) uniqueness of:
