@@ -1,8 +1,16 @@
 import argparse
+from datetime import datetime
+import logging
 import subprocess
 import sys
-from datetime import datetime
 import time
+
+logger = logging.getLogger("connection-management")
+logger.setLevel(logging.INFO)
+sh = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s - %(message)s")
+sh.setFormatter(formatter)
+logger.addHandler(sh)
 
 DEFAULT_PORT_FW_CONFIGS = {
     "service": {
@@ -16,15 +24,24 @@ DEFAULT_PORT_FW_CONFIGS = {
         "is_ui": False,
     },
     "ui-static": {
-        'deployment': "metaflow-ui-static-service",
+        "deployment": "metaflow-ui-static-service",
         "port": 3000,
-        "is_ui": True
-    }
+        "is_ui": True,
+    },
 }
 
 
 class PortForwarder(object):
-    def __init__(self, key,deployment, port, is_ui, namespace=None, scheme='http', output_port=None):
+    def __init__(
+        self,
+        key,
+        deployment,
+        port,
+        is_ui,
+        namespace=None,
+        scheme="http",
+        output_port=None,
+    ):
         self.key = key
         self.deployment = deployment
         self.port = port
@@ -40,16 +57,19 @@ class PortForwarder(object):
         return self.port_fwd_proc is not None and self.port_fwd_proc.returncode is None
 
     def get_browser_hint(self):
-        return "Open %s at %s://localhost:%d" % (self.deployment, self.scheme, self.output_port,)
+        return f"Open {self.deployment} at {self.scheme}://localhost:{self.output_port}"
 
     def start_new_port_fwd_proc(self):
         deployment_name = self.deployment
-        cmd = ["kubectl", "port-forward", "deployment/%s" % deployment_name]
+        cmd = ["kubectl", "port-forward", f"deployment/{deployment_name}"]
         if self.namespace:
             cmd.extend(["-n", self.namespace])
-        cmd.append("{output_port}:{port}".format(port=self.port, output_port=self.output_port))
-        self.port_fwd_proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        log("Started port forward for %s" % self.deployment)
+        cmd.append(f"{self.output_port}:{self.port}")
+        logger.debug(f"Excuting {cmd}")
+        self.port_fwd_proc = subprocess.Popen(
+            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
+        logger.info(f"Started port forward for {self.deployment}")
 
     def stop_port_fwd_proc(self):
         self.port_fwd_proc.terminate()
@@ -58,10 +78,10 @@ class PortForwarder(object):
         cmd = ["nc", "-vz", "127.0.0.1", str(self.port)]
         try:
             subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
-            log("Kept port forward alive for %s" % self.deployment)
+            logger.info(f"Kept port forward alive for {self.deployment}")
             return True
         except subprocess.CalledProcessError:
-            log("Port forward failed for %s" % self.deployment)
+            logger.info(f"Port forward failed for {self.deployment}")
             return False
 
     def step(self):
@@ -74,33 +94,25 @@ class PortForwarder(object):
         else:
             self.start_new_port_fwd_proc()
         if self.is_ui:
-            log(self.get_browser_hint())
-
-
-def log(s):
-    dt = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-    print("%s - %s" % (dt, s))
+            logger.info(self.get_browser_hint())
 
 
 def run(include_argo, include_airflow):
     port_forwarders = []
     for key, config in DEFAULT_PORT_FW_CONFIGS.items():
-        port_forwarders.append(PortForwarder(
-            key,
-            config["deployment"],
-            config["port"],
-            config["is_ui"],
-            namespace=config.get("namespace", None)
-        ))
+        port_forwarders.append(
+            PortForwarder(
+                key,
+                config["deployment"],
+                config["port"],
+                config["is_ui"],
+                namespace=config.get("namespace", None),
+            )
+        )
     if include_argo:
         port_forwarders.append(
             PortForwarder(
-                "argo",
-                "argo-server",
-                2746,
-                True,
-                namespace="argo",
-                scheme='https'
+                "argo", "argo-server", 2746, True, namespace="argo", scheme="https"
             )
         )
     if include_airflow:
@@ -111,8 +123,8 @@ def run(include_argo, include_airflow):
                 8080,
                 True,
                 namespace="airflow",
-                scheme='https',
-                output_port=9090
+                scheme="https",
+                output_port=9090,
             )
         )
     try:
@@ -122,22 +134,33 @@ def run(include_argo, include_airflow):
             time.sleep(30)
 
     except KeyboardInterrupt:
-        log("Aborted!")
+        logger.info("Aborted!")
         return 0
     finally:
         for port_forwarder in port_forwarders:
             port_forwarder.stop_port_fwd_proc()
-            log("Terminated port forward to %s" % port_forwarder.key)
+            logger.info(f"Terminated port forward to {port_forwarder.key}")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Maintain port forwards to Kubernetes Metaflow stack")
-    parser.add_argument('--include-argo', action='store_true',
-                        help="Do port forward for argo server (needed for Argo UI)")
-    parser.add_argument('--include-airflow', action='store_true',
-                        help="Do port forward for argo server (needed for Argo UI)")
+    parser = argparse.ArgumentParser(
+        description="Maintain port forwards to Kubernetes Metaflow stack"
+    )
+    parser.add_argument(
+        "--include-argo",
+        action="store_true",
+        help="Do port forward for argo server (needed for Argo UI)",
+    )
+    parser.add_argument(
+        "--include-airflow",
+        action="store_true",
+        help="Do port forward for argo server (needed for Argo UI)",
+    )
+    parser.add_argument("--debug", action="store_true", help="Debug logging")
 
     args = parser.parse_args()
+    if args.debug:
+        logger.setLevel(logging.DEBUG)
 
     try:
         subprocess.check_output(["which", "kubectl"])
@@ -154,5 +177,5 @@ def main():
     return run(args.include_argo, args.include_airflow)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
