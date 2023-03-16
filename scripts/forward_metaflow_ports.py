@@ -1,8 +1,9 @@
 import argparse
+from contextlib import closing
 from datetime import datetime
 import logging
+import socket
 import subprocess
-import sys
 import time
 
 logger = logging.getLogger("connection-management")
@@ -70,19 +71,20 @@ class PortForwarder(object):
             cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
         )
         logger.info(f"Started port forward for {self.deployment}")
+        if self.is_ui:
+            logger.info(self.get_browser_hint())
 
     def stop_port_fwd_proc(self):
         self.port_fwd_proc.terminate()
 
     def run_keep_alive(self):
-        cmd = ["nc", "-vz", "127.0.0.1", str(self.port)]
-        try:
-            subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
-            logger.info(f"Kept port forward alive for {self.deployment}")
-            return True
-        except subprocess.CalledProcessError:
-            logger.info(f"Port forward failed for {self.deployment}")
-            return False
+        with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
+            if sock.connect_ex((host, port)) == 0:
+                logger.info(f"Kept port forward alive for {self.deployment}")
+                return True
+            else:
+                logger.info(f"Port forward failed for {self.deployment}")
+                return False
 
     def step(self):
         if self.port_fwd_is_running():
@@ -90,25 +92,21 @@ class PortForwarder(object):
                 if self.port_fwd_is_running():
                     self.stop_port_fwd_proc()
                 self.start_new_port_fwd_proc()
-
         else:
             self.start_new_port_fwd_proc()
-        if self.is_ui:
-            logger.info(self.get_browser_hint())
 
 
 def run(include_argo, include_airflow):
-    port_forwarders = []
-    for key, config in DEFAULT_PORT_FW_CONFIGS.items():
-        port_forwarders.append(
-            PortForwarder(
-                key,
-                config["deployment"],
-                config["port"],
-                config["is_ui"],
-                namespace=config.get("namespace", None),
-            )
+    port_forwarders = [
+        PortForwarder(
+            key,
+            config["deployment"],
+            config["port"],
+            config["is_ui"],
+            namespace=config.get("namespace", None),
         )
+        for key, config in DEFAULT_PORT_FW_CONFIGS.items()
+    ]
     if include_argo:
         port_forwarders.append(
             PortForwarder(
@@ -168,14 +166,8 @@ def main():
         print("kubectl must be installed!")
         return 1
 
-    try:
-        subprocess.check_output(["which", "nc"])
-    except Exception:
-        print("nc utility must be installed!")
-        return 1
-
     return run(args.include_argo, args.include_airflow)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    exit(main())
