@@ -7,9 +7,9 @@ resource "kubernetes_namespace" "airflow" {
 
 locals {
   airflow_values = {
-    "executor" = "LocalExecutor"
-    "defaultAirflowTag" = var.airflow_version
-    "airflowVersion" = var.airflow_version
+    "executor"           = "LocalExecutor"
+    "defaultAirflowTag"  = var.airflow_version
+    "airflowVersion"     = var.airflow_version
     "webserverSecretKey" = var.airflow_frenet_secret
   }
 }
@@ -37,8 +37,8 @@ resource "helm_release" "airflow" {
 # annotation is added to the scheduler's pod so that the pod's service account can 
 # talk to Google cloud storage. 
 resource "kubernetes_annotations" "airflow_service_account_annotation" {
-  count = var.deploy_airflow ? 1 : 0
-  depends_on = [helm_release.airflow]
+  count       = var.deploy_airflow ? 1 : 0
+  depends_on  = [helm_release.airflow]
   api_version = "v1"
   kind        = "ServiceAccount"
   metadata {

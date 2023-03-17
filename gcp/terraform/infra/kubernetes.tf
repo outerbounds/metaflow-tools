@@ -7,10 +7,10 @@ resource "google_service_account" "metaflow_kubernetes_control_plane_service_acc
 }
 
 resource "google_container_cluster" "metaflow_kubernetes" {
-  provider = google-beta
+  provider           = google-beta
   name               = var.kubernetes_cluster_name
   initial_node_count = 1
-  location = var.zone
+  location           = var.zone
   workload_identity_config {
     workload_pool = "${var.project}.svc.id.goog"
   }
@@ -28,17 +28,17 @@ resource "google_container_cluster" "metaflow_kubernetes" {
     enabled = true
     resource_limits {
       resource_type = "cpu"
-      minimum = 1
-      maximum = 200
+      minimum       = 1
+      maximum       = 200
     }
     resource_limits {
       resource_type = "memory"
-      minimum = 2
-      maximum = 400
+      minimum       = 2
+      maximum       = 400
     }
   }
-  network = google_compute_network.metaflow_compute_network.name
-  subnetwork = google_compute_subnetwork.metaflow_subnet_for_kubernetes.name
+  network         = google_compute_network.metaflow_compute_network.name
+  subnetwork      = google_compute_subnetwork.metaflow_subnet_for_kubernetes.name
   networking_mode = "VPC_NATIVE"
   # empty block is required
   ip_allocation_policy {}
