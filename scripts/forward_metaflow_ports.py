@@ -44,7 +44,7 @@ class PortForwarder(object):
         namespace=None,
         scheme="http",
         output_port=None,
-        config_location=f"{os.getcwd()/kubeconfig",
+        config_location=f"{os.getcwd()}/kubeconfig",
     ):
         self.key = key
         self.deployment = deployment
@@ -156,7 +156,7 @@ def main():
     )
     parser.add_argument(
         "--config-file",
-        default=f"{os.getcwd()/kubeconfig",
+        default=f"{os.getcwd()}/kubeconfig",
         help="Location of kubeconfig file for the cluster",
     )
     parser.add_argument(
@@ -170,10 +170,17 @@ def main():
         help="Do port forward for argo server (needed for Argo UI)",
     )
     parser.add_argument("--debug", action="store_true", help="Debug logging")
+    parser.add_argument(
+        "--use-gke-auth",
+        action="store_true",
+        help="Enable GKE auth plugin for GCP environments",
+    )
 
     args = parser.parse_args()
     if args.debug:
         logger.setLevel(logging.DEBUG)
+    if args.use_gke_auth:
+        os.environ["USE_GKE_GCLOUD_AUTH_PLUGIN"] = "True"
 
     try:
         subprocess.check_output(["which", "kubectl"])

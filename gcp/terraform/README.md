@@ -58,6 +58,15 @@ terraform apply -var-file=FILE.tfvars
 
 The step above will output next steps for Metaflow end users.
 
+### After Output
+
+While the output file does give good next steps, a few notes here as well:
+
+1. `export USE_GKE_GCLOUD_AUTH_PLUGIN=True` makes kubectl complain less
+2. a `kubeconfig` file is generated for you, but you do need to actually reference it correctly:
+    * export the `KUBECONFIG` environment variable correctly
+    * add the new data to `~/.kube/config` or whereever your local `kubectl` config lives
+
 ## Metaflow job orchestration options
 
 The recommended way to orchestrate Metaflow workloads on Kubernetes is via [Argo Workflows](https://docs.metaflow.org/going-to-production-with-metaflow/scheduling-metaflow-flows/scheduling-with-argo-workflows). However, Airflow is also supported as an alternative.

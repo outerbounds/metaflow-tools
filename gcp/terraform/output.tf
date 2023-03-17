@@ -70,6 +70,8 @@ METAFLOW_KUBERNETES_CONTAINER_IMAGE
 STEP 3: Setup port-forwards to services running on Kubernetes:
 
 Step 3 -> option 1 - run kubectl's manually:
+$ export USE_GKE_GCLOUD_AUTH_PLUGIN=True
+$ export KUBECONFIG=kubeconfig
 $ kubectl port-forward deployment/metadata-service 8080:8080
 $ kubectl port-forward deployment/metaflow-ui-backend-service 8083:8083
 $ kubectl port-forward deployment/metadata-service 3000:3000
@@ -77,7 +79,7 @@ $ kubectl port-forward -n argo deployment/argo-server 2746:2746
 
 Step 3 -> option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
-$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo] [--include-airflow]
+$ python metaflow-tools/scripts/forward_metaflow_ports.py --use-gke-auth [--include-argo] [--include-airflow]
 
 STEP 4: Install GCP Python SDK
 $ pip install google-cloud-storage google-auth
