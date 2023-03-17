@@ -10,8 +10,7 @@ locals {
   database_server_name_prefix = "psql-metaflow-${terraform.workspace}"
   database_server_name        = "${local.database_server_name_prefix}-${random_id.database_server_name_suffix.hex}"
   kubernetes_cluster_name     = "gke-metaflow-${terraform.workspace}"
-  region                      = "us-west2"
-  zone                        = "us-west2-a"
+  zone                        = "${var.region}-a"
 
   storage_bucket_name           = "storage-${var.org_prefix}-metaflow-${terraform.workspace}"
   metaflow_datastore_sysroot_gs = "gs://${local.storage_bucket_name}/tf-full-stack-sysroot"
@@ -30,6 +29,10 @@ locals {
 
   airflow_version       = "2.5.0"
   airflow_frenet_secret = "myverysecretvalue"
+}
+
+variable "region" {
+  type = string
 }
 
 variable "project" {
