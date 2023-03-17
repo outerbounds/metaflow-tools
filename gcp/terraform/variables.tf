@@ -17,7 +17,7 @@ locals {
 
   airflow_logs_bucket_path = "gs://${local.storage_bucket_name}/airflow/logs"
 
-  metaflow_ui_static_service_image = "public.ecr.aws/outerbounds/metaflow_ui:v1.2.5"
+  metaflow_ui_static_service_image  = "public.ecr.aws/outerbounds/metaflow_ui:v1.2.5"
   metaflow_ui_backend_service_image = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.7"
   metadata_service_image            = "public.ecr.aws/outerbounds/metaflow_metadata_service:2.3.7"
   # TODO gsa-metaflow-workload-id-<workspace>
