@@ -31,8 +31,8 @@ Before you do anything, create a `FILE.tfvars` file with the following content (
     project = "<GCP_PROJECT_ID>"
     region = "<GCP_REGION>"
     db_generation_number = <DB_GENERATION_NUM>
-    cpu_max = <CPU_CORES>
-    memory_max = <MEMORY_GB>
+    max_cpu = <CPU_CORES>
+    max_memory = <MEMORY_GB>
 
 For `org_prefix`, choose a short and memorable alphanumeric string. It will be used for naming the Google Cloud Storage bucket, whose
 name must be globally unique across GCP.
