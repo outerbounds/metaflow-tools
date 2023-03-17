@@ -26,16 +26,16 @@ resource "helm_release" "airflow" {
 
   timeout = 1200
 
-  wait = false # Why set `wait=false` 
+  wait = false # Why set `wait=false`
   #: Read this (https://github.com/hashicorp/terraform-provider-helm/issues/683#issuecomment-830872443)
-  # Short summary : If this is not set then airflow doesn't end up running migrations on the database. That makes the scheduler and other containers to keep waiting for migrations. 
+  # Short summary : If this is not set then airflow doesn't end up running migrations on the database. That makes the scheduler and other containers to keep waiting for migrations.
 
   values = [
     yamlencode(local.airflow_values)
   ]
 }
-# annotation is added to the scheduler's pod so that the pod's service account can 
-# talk to Google cloud storage. 
+# annotation is added to the scheduler's pod so that the pod's service account can
+# talk to Google cloud storage.
 resource "kubernetes_annotations" "airflow_service_account_annotation" {
   count       = var.deploy_airflow ? 1 : 0
   depends_on  = [helm_release.airflow]
