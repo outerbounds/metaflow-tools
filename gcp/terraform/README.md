@@ -68,7 +68,7 @@ After you have changed the value of `deploy_argo`, re-apply terraform for both [
 
 ### Airflow
 
-**This is quickstart template only, not recommended for real production deployments**
+> _This is quickstart template only, not recommended for real production deployments_
 
 If `deploy_airflow`  is set to true, then the `services` module will deploy Airflow via a [helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html) into the kubernetes cluster (the one deployed by the `infra` module).
 
