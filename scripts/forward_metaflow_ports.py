@@ -3,6 +3,7 @@ import argparse
 from contextlib import closing
 from datetime import datetime
 import logging
+import os
 import socket
 import subprocess
 import time
@@ -43,6 +44,7 @@ class PortForwarder(object):
         namespace=None,
         scheme="http",
         output_port=None,
+        config_location=f"{os.getcwd()/kubeconfig",
     ):
         self.key = key
         self.deployment = deployment
@@ -54,6 +56,7 @@ class PortForwarder(object):
         self.port_fwd_proc = None
         self.is_ui = is_ui
         self.scheme = scheme
+        self.config_location = config_location
 
     def port_fwd_is_running(self):
         return self.port_fwd_proc is not None and self.port_fwd_proc.returncode is None
@@ -69,7 +72,13 @@ class PortForwarder(object):
         cmd.append(f"{self.output_port}:{self.port}")
         logger.debug(f"Excuting {cmd}")
         self.port_fwd_proc = subprocess.Popen(
-            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            # ensure we use the correct
+            env={
+                "KUBECONFIG": self.config_location,
+            },
         )
         logger.info(f"Started port forward for {self.deployment}")
         if self.is_ui:
@@ -144,6 +153,11 @@ def run(include_argo, include_airflow):
 def main():
     parser = argparse.ArgumentParser(
         description="Maintain port forwards to Kubernetes Metaflow stack"
+    )
+    parser.add_argument(
+        "--config-file",
+        default=f"{os.getcwd()/kubeconfig",
+        help="Location of kubeconfig file for the cluster",
     )
     parser.add_argument(
         "--include-argo",
