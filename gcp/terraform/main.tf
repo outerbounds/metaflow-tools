@@ -111,5 +111,5 @@ module "services" {
   deploy_airflow                      = var.deploy_airflow
   deploy_argo                         = var.deploy_argo
   airflow_version                     = local.airflow_version
-  airflow_frenet_secret               = local.airflow_frenet_secret
+  airflow_frenet_secret               = var.airflow_frenet_secret
 }
