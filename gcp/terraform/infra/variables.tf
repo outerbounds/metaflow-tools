@@ -29,3 +29,13 @@ variable "storage_bucket_name" {
 variable "service_account_key_file" {
   type = string
 }
+
+variable "max_cpu" {
+  type    = number
+  default = 200
+}
+
+variable "max_memory" {
+  type    = number
+  default = 400
+}

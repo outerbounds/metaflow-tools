@@ -61,3 +61,13 @@ variable "airflow_frenet_secret" {
   type    = string
   default = "myverysecretvalue"
 }
+
+variable "max_cpu" {
+  type    = number
+  default = 200
+}
+
+variable "max_memory" {
+  type    = number
+  default = 400
+}

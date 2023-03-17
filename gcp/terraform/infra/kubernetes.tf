@@ -29,12 +29,12 @@ resource "google_container_cluster" "metaflow_kubernetes" {
     resource_limits {
       resource_type = "cpu"
       minimum       = 1
-      maximum       = 200
+      maximum       = var.max_cpu
     }
     resource_limits {
       resource_type = "memory"
       minimum       = 2
-      maximum       = 400
+      maximum       = var.max_memory
     }
   }
   network         = google_compute_network.metaflow_compute_network.name

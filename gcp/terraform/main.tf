@@ -87,6 +87,8 @@ module "infra" {
   storage_bucket_name                 = local.storage_bucket_name
   metaflow_workload_identity_gsa_name = local.metaflow_workload_identity_gsa_name
   service_account_key_file            = local.service_account_key_file
+  max_cpu                             = var.max_cpu
+  max_memory                          = var.max_memory
 }
 
 module "services" {

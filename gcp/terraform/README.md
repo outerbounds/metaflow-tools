@@ -31,6 +31,8 @@ Before you do anything, create a `FILE.tfvars` file with the following content (
     project = "<GCP_PROJECT_ID>"
     region = "<GCP_REGION>"
     db_generation_number = <DB_GENERATION_NUM>
+    cpu_max = <CPU_CORES>
+    memory_max = <MEMORY_GB>
 
 For `org_prefix`, choose a short and memorable alphanumeric string. It will be used for naming the Google Cloud Storage bucket, whose
 name must be globally unique across GCP.
@@ -42,17 +44,17 @@ names.  Backstory: DB instance names cannot repeat within 7 day window on GCP.
 
 `GCP_REGION` should be the region in GCP you want this cluster to deploy in.
 
+`CPU_CORES` should be the total number of CPU cores the cluster is allowed to allocate. Defaults to 200.
+
+`MEMORY_GB` should be the total amount of memory (in GBs) the cluster is allowed to allocate. Defaults to 400.
+
 You may rename `FILE.tfvars` to a more friendly name appropriate for your project.  E.g. `metaflow.poc.tfvars`.
 
 The variable assignments defined in this file will be passed to `terraform` CLI.
 
-Next, apply the `infra` module (creates GCP resources only).
-
-    terraform apply -target="module.infra" -var-file=FILE.tfvars
-
-Then, apply the `services` module (deploys Metaflow services to GKE)
-
-    terraform apply -target="module.services" -var-file=FILE.tfvars
+```bash
+terraform apply -var-file=FILE.tfvars
+```
 
 The step above will output next steps for Metaflow end users.
 
@@ -103,3 +105,9 @@ Some reasons include:
 * You wish to mitigate the risk of data-loss on your local disk.
 
 For more details, see [Terraform docs](https://www.terraform.io/language/settings/backends/configuration).
+
+> _Currently, Terraform Cloud _will not work_ with these modules. Terraform Cloud doesn't have `kubectl` available and cannot create Argo or Airflow services correctly._
+
+## Ingress Suggestions
+
+
