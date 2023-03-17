@@ -79,7 +79,7 @@ resource "local_file" "kubeconfig" {
 
 module "infra" {
   source                              = "./infra"
-  region                              = local.region
+  region                              = var.region
   zone                                = local.zone
   project                             = var.project
   database_server_name                = local.database_server_name
