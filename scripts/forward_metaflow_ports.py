@@ -167,7 +167,7 @@ def main():
     parser.add_argument(
         "--include-airflow",
         action="store_true",
-        help="Do port forward for argo server (needed for Argo UI)",
+        help="Do port forward for airflow server (needed for Airflow UI)",
     )
     parser.add_argument("--debug", action="store_true", help="Debug logging")
     parser.add_argument(
