@@ -10,7 +10,7 @@ import time
 logger = logging.getLogger("connection-management")
 logger.setLevel(logging.INFO)
 sh = logging.StreamHandler()
-formatter = logging.Formatter("%(asctime)s - %(message)s")
+formatter = logging.Formatter("%(asctime)s %(levelname)s - %(message)s")
 sh.setFormatter(formatter)
 logger.addHandler(sh)
 
@@ -31,6 +31,7 @@ DEFAULT_PORT_FW_CONFIGS = {
         "is_ui": True,
     },
 }
+SLEEP_TIME = 15
 
 
 class PortForwarder(object):
@@ -73,7 +74,7 @@ class PortForwarder(object):
         self.port_fwd_proc = subprocess.Popen(
             cmd,
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
             # ensure we use the correct
             env={
                 "KUBECONFIG": self.config_location,
@@ -92,7 +93,8 @@ class PortForwarder(object):
                 logger.info(f"Kept port forward alive for {self.deployment}")
                 return True
             else:
-                logger.info(f"Port forward failed for {self.deployment}")
+                logger.warning(f"Port forward failed for {self.deployment}")
+                logger.warning(f"Logs: {self.port_fwd_proc.communicate()[1].decode()}")
                 return False
 
     def step(self):
@@ -119,16 +121,21 @@ def run(include_argo, include_airflow):
     if include_argo:
         port_forwarders.append(
             PortForwarder(
-                "argo", "argo-server", 2746, True, namespace="argo", scheme="https"
+                key="argo",
+                deployment="argo-server",
+                port=2746,
+                is_ui=True,
+                namespace="argo",
+                scheme="https",
             )
         )
     if include_airflow:
         port_forwarders.append(
             PortForwarder(
-                "airflow",
-                "airflow-deployment-webserver",
-                8080,
-                True,
+                key="airflow",
+                deployment="airflow-deployment-webserver",
+                port=8080,
+                is_ui=True,
                 namespace="airflow",
                 scheme="https",
                 output_port=9090,
@@ -138,7 +145,8 @@ def run(include_argo, include_airflow):
         while True:
             for port_forwarder in port_forwarders:
                 port_forwarder.step()
-            time.sleep(30)
+            logger.debug(f"Waiting {SLEEP_TIME} seconds before checking health")
+            time.sleep(SLEEP_TIME)
 
     except KeyboardInterrupt:
         logger.info("Aborted!")
