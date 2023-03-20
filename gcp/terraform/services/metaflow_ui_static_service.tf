@@ -59,6 +59,9 @@ resource "kubernetes_service" "metaflow-ui-static-service" {
   metadata {
     name      = "metaflow-ui-static-service"
     namespace = "default"
+    annotations = {
+      "cloud.google.com/neg" = jsonencode({ ingress = true })
+    }
   }
   spec {
     type = "ClusterIP"

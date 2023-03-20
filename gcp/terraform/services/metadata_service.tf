@@ -91,6 +91,9 @@ resource "kubernetes_service" "metadata-service" {
   metadata {
     name      = "metadata-service"
     namespace = "default"
+    annotations = {
+      "cloud.google.com/neg" = jsonencode({ ingress = true })
+    }
   }
   spec {
     type = "ClusterIP"
