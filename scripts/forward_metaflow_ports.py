@@ -89,7 +89,7 @@ class PortForwarder(object):
 
     def run_keep_alive(self):
         with closing(socket.socket(socket.AF_INET, socket.SOCK_STREAM)) as sock:
-            if sock.connect_ex((host, port)) == 0:
+            if sock.connect_ex(("localhost", self.port)) == 0:
                 logger.info(f"Kept port forward alive for {self.deployment}")
                 return True
             else:
