@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 from contextlib import closing
-from datetime import datetime
 import logging
 import os
 import socket
