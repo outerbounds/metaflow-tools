@@ -13,7 +13,7 @@ image:
 uiImage:
   repository: public.ecr.aws/outerbounds/metaflow_ui
   pullPolicy: IfNotPresent
-  tag: "v1.0.1"
+  tag: "v1.1.4"
 
 imagePullSecrets: []
 nameOverride: ""
