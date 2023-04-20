@@ -1,4 +1,5 @@
 output "END_USER_SETUP_INSTRUCTIONS" {
+  depends_on = [module.services]
   value = <<EOT
 V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V
 Setup instructions for END USERS (e.g. someone running Flows vs the new stack):
@@ -29,44 +30,17 @@ $ gcloud container clusters get-credentials ${local.kubernetes_cluster_name} --r
 
 STEP 2: Configure Metaflow:
 
-Option 1: Create JSON config directly (recommended)
+Copy config.json to ~/.metaflowconfig/config.json:
 
-Create the file "~/.metaflowconfig/config.json" with this content. If this file already exists, keep a backup of it and
-move it aside first.
+$ cp config.json ~/.metaflowconfig/config.json
 
-{
-    "METAFLOW_DATASTORE_SYSROOT_GS": "${local.metaflow_datastore_sysroot_gs}",
-    "METAFLOW_DEFAULT_DATASTORE": "gs",
-    "METAFLOW_DEFAULT_METADATA": "service",
-    "METAFLOW_KUBERNETES_NAMESPACE": "default",
-    "METAFLOW_KUBERNETES_SERVICE_ACCOUNT": "${local.metaflow_workload_identity_ksa_name}",
-    "METAFLOW_SERVICE_INTERNAL_URL": "http://metadata-service.default:8080/",
-    "METAFLOW_SERVICE_URL": "http://127.0.0.1:8080/"
-}
+Edit the file based on your scenario:
 
-Option 2: Interactive configuration
-
-Run the following, one after another.
-
-$ metaflow configure gs
-$ metaflow configure kubernetes
-
-Use these values when prompted:
-
-METAFLOW_DATASTORE_SYSROOT_GS=${local.metaflow_datastore_sysroot_gs}
-METAFLOW_SERVICE_URL=http://127.0.0.1:8080/
-METAFLOW_SERVICE_INTERNAL_URL=http://metadata-service.default:8080/
 [For Argo only] METAFLOW_KUBERNETES_NAMESPACE=argo
 [For Argo only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=argo
 [For Airflow only] METAFLOW_KUBERNETES_NAMESPACE=airflow
 [For Airflow only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=airflow-deployment-scheduler
 [For non-Argo only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=${local.metaflow_workload_identity_ksa_name}
-
-Note: you can skip these:
-
-METAFLOW_SERVICE_AUTH_KEY
-METAFLOW_KUBERNETES_CONTAINER_REGISTRY
-METAFLOW_KUBERNETES_CONTAINER_IMAGE
 
 STEP 3: Setup port-forwards to services running on Kubernetes:
 
@@ -78,7 +52,7 @@ $ kubectl port-forward -n argo deployment/argo-server 2746:2746
 
 option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
-$ python metaflow-tools/scripts/forward_metaflow_ports.py [--include-argo] [--include-airflow]
+$ python forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
 STEP 4: Install GCP Python SDK
 $ pip install google-cloud-storage google-auth
