@@ -54,7 +54,7 @@ $ kubectl port-forward -n argo deployment/argo-server 2746:2746
 
 Step 3 -> option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
-$ python metaflow-tools/scripts/forward_metaflow_ports.py --use-gke-auth [--include-argo] [--include-airflow]
+$ python forward_metaflow_ports.py --use-gke-auth [--include-argo] [--include-airflow]
 
 STEP 4: Install GCP Python SDK
 $ pip install google-cloud-storage google-auth
