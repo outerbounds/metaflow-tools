@@ -6,17 +6,17 @@ import time
 
 DEFAULT_PORT_FW_CONFIGS = {
     "service": {
-        "deployment": "metadata-service",
+        "target": "deployment/metadata-service",
         "port": 8080,
         "is_ui": False,
     },
     "ui": {
-        "deployment": "metaflow-ui-backend-service",
+        "target": "deployment/metaflow-ui-backend-service",
         "port": 8083,
         "is_ui": False,
     },
     "ui-static": {
-        'deployment': "metaflow-ui-static-service",
+        'target': "deployment/metaflow-ui-static-service",
         "port": 3000,
         "is_ui": True
     }
@@ -24,9 +24,10 @@ DEFAULT_PORT_FW_CONFIGS = {
 
 
 class PortForwarder(object):
-    def __init__(self, key,deployment, port, is_ui, namespace=None, scheme='http', output_port=None):
+    def __init__(self, key, target, port, is_ui, namespace=None, scheme='http', output_port=None):
+        # target can be "deployment/<name>" or "service/<name>"
         self.key = key
-        self.deployment = deployment
+        self.target = target
         self.port = port
         self.output_port = port
         if output_port is not None:
@@ -40,16 +41,15 @@ class PortForwarder(object):
         return self.port_fwd_proc is not None and self.port_fwd_proc.returncode is None
 
     def get_browser_hint(self):
-        return "Open %s at %s://localhost:%d" % (self.deployment, self.scheme, self.output_port,)
+        return "Open %s at %s://localhost:%d" % (self.target, self.scheme, self.output_port,)
 
     def start_new_port_fwd_proc(self):
-        deployment_name = self.deployment
-        cmd = ["kubectl", "port-forward", "deployment/%s" % deployment_name]
+        cmd = ["kubectl", "port-forward", self.target]
         if self.namespace:
             cmd.extend(["-n", self.namespace])
         cmd.append("{output_port}:{port}".format(port=self.port, output_port=self.output_port))
         self.port_fwd_proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        log("Started port forward for %s" % self.deployment)
+        log("Started port forward for %s" % self.target)
 
     def stop_port_fwd_proc(self):
         self.port_fwd_proc.terminate()
@@ -58,10 +58,10 @@ class PortForwarder(object):
         cmd = ["nc", "-vz", "127.0.0.1", str(self.port)]
         try:
             subprocess.check_output(cmd, stderr=subprocess.DEVNULL)
-            log("Kept port forward alive for %s" % self.deployment)
+            log("Kept port forward alive for %s" % self.target)
             return True
         except subprocess.CalledProcessError:
-            log("Port forward failed for %s" % self.deployment)
+            log("Port forward failed for %s" % self.target)
             return False
 
     def step(self):
@@ -87,7 +87,7 @@ def run(include_argo, include_airflow):
     for key, config in DEFAULT_PORT_FW_CONFIGS.items():
         port_forwarders.append(PortForwarder(
             key,
-            config["deployment"],
+            config["target"],
             config["port"],
             config["is_ui"],
             namespace=config.get("namespace", None)
@@ -95,19 +95,29 @@ def run(include_argo, include_airflow):
     if include_argo:
         port_forwarders.append(
             PortForwarder(
-                "argo",
                 "argo-server",
+                "deployment/argo-server",
                 2746,
                 True,
                 namespace="argo",
                 scheme='https'
             )
         )
+        port_forwarders.append(
+            PortForwarder(
+                "argo-events-webhook",
+                "service/argo-events-webhook-eventsource-svc",
+                12000,
+                True,
+                namespace="argo",
+                scheme='http'
+            )
+        )
     if include_airflow:
         port_forwarders.append(
             PortForwarder(
                 "airflow",
-                "airflow-deployment-webserver",
+                "deployment/airflow-deployment-webserver",
                 8080,
                 True,
                 namespace="airflow",
