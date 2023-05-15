@@ -72,6 +72,7 @@ $ kubectl port-forward deployment/metadata-service 8080:8080
 $ kubectl port-forward deployment/metaflow-ui-backend-service 8083:8083
 $ kubectl port-forward deployment/metadata-ui-static-service 3000:3000
 $ kubectl port-forward -n argo deployment/argo-server 2746:2746
+$ kubectl port-forward -n argo service/argo-events-webhook-eventsource-svc 12000:12000
 
 option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
