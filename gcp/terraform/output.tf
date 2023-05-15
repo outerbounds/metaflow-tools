@@ -24,11 +24,11 @@ Option 2: Use service account key
 Ask for the pregenerated service account key (${local.service_account_key_file}) from the administrator (the person who stood up the Metaflow stack).
 Save the key file locally to your home directory. It should be made to be accessible only by you (chmod 700 <FILE>)
 
-Configure your local Kubernetes context to point to the the right Kubernetes cluster:
+STEP 2: Configure your local Kubernetes context to point to the the right Kubernetes cluster:
 
 $ gcloud container clusters get-credentials ${local.kubernetes_cluster_name} --region=${local.zone}
 
-STEP 2: Configure Metaflow:
+STEP 3: Configure Metaflow:
 
 Copy config.json to ~/.metaflowconfig/config.json:
 
@@ -42,7 +42,7 @@ Edit the file based on your scenario:
 [For Airflow only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=airflow-deployment-scheduler
 [For non-Argo only] METAFLOW_KUBERNETES_SERVICE_ACCOUNT=${local.metaflow_workload_identity_ksa_name}
 
-STEP 3: Setup port-forwards to services running on Kubernetes:
+STEP 4: Setup port-forwards to services running on Kubernetes:
 
 option 1 - run kubectl's manually:
 $ kubectl port-forward deployment/metadata-service 8080:8080
@@ -54,9 +54,25 @@ option 2 - this script manages the same port-forwards for you (and prevents time
 
 $ python forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
-STEP 4: Install GCP Python SDK
+STEP 5: Install GCP Python SDK
 $ pip install google-cloud-storage google-auth
 
+ADVANCED TOPICS
+---------------
+
+Q: How to publish an Argo Event from outside the Kubernetes cluster?
+A: Ensure `forward_metaflow_ports.py --include-argo` is running. Here is a snippet that publishes
+   the event "foo" (consume this event with `@trigger(event="foo")`):
+```
+from metaflow.plugins.argo.argo_events import ArgoEvent
+
+def main():
+    evt = ArgoEvent('foo', url="http://localhost:12000/metaflow-event")
+    evt.publish(force=True)
+
+if __name__ == '__main__':
+    main()
+```
 #^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^
 EOT
 }

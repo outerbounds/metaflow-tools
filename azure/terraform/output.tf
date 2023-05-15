@@ -80,6 +80,23 @@ $ python forward_metaflow_ports.py [--include-argo] [--include-airflow]
 STEP 4: Install Azure Python SDK
 $ pip install azure-storage-blob azure-identity
 
+ADVANCED TOPICS
+---------------
+
+Q: How to publish an Argo Event from outside the Kubernetes cluster?
+A: Ensure `forward_metaflow_ports.py --include-argo` is running. Here is a snippet that publishes
+   the event "foo" (consume this event with `@trigger(event="foo")`):
+```
+from metaflow.plugins.argo.argo_events import ArgoEvent
+
+def main():
+    evt = ArgoEvent('foo', url="http://localhost:12000/metaflow-event")
+    evt.publish(force=True)
+
+if __name__ == '__main__':
+    main()
+```
+
 #^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^
 EOT
 }
