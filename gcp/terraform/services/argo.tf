@@ -9,7 +9,7 @@ locals {
   is_windows = substr(pathexpand("~"), 0, 1) == "/" ? false : true
   _apply_cmd = "kubectl apply -n argo -f https://raw.githubusercontent.com/argoproj/argo-workflows/master/manifests/quick-start-postgres.yaml"
   # we need to annotate the "argo" kubernetes service account for workload identity integration
-  _annotate_cmd = "kubectl annotate -n argo serviceaccount argo  iam.gke.io/gcp-service-account=${var.metaflow_workload_identity_gsa_name}@${var.project}.iam.gserviceaccount.com"
+  _annotate_cmd = "kubectl annotate --overwrite -n argo serviceaccount argo  iam.gke.io/gcp-service-account=${var.metaflow_workload_identity_gsa_name}@${var.project}.iam.gserviceaccount.com"
 }
 
 # Yes local-exec is unfortunate.

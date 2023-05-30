@@ -16,17 +16,17 @@ logger.addHandler(sh)
 
 DEFAULT_PORT_FW_CONFIGS = {
     "service": {
-        "deployment": "metadata-service",
+        "target": "deployment/metadata-service",
         "port": 8080,
         "is_ui": False,
     },
     "ui": {
-        "deployment": "metaflow-ui-backend-service",
+        "target": "deployment/metaflow-ui-backend-service",
         "port": 8083,
         "is_ui": False,
     },
     "ui-static": {
-        "deployment": "metaflow-ui-static-service",
+        "target": "deployment/metaflow-ui-static-service",
         "port": 3000,
         "is_ui": True,
     },
@@ -47,7 +47,7 @@ class PortForwarder(object):
         config_location=f"{os.getcwd()}/kubeconfig",
     ):
         self.key = key
-        self.deployment = deployment
+        self.target = target
         self.port = port
         self.output_port = port
         if output_port is not None:
@@ -111,7 +111,7 @@ def run(include_argo, include_airflow):
     port_forwarders = [
         PortForwarder(
             key,
-            config["deployment"],
+            config["target"],
             config["port"],
             config["is_ui"],
             namespace=config.get("namespace", None),
@@ -121,19 +121,29 @@ def run(include_argo, include_airflow):
     if include_argo:
         port_forwarders.append(
             PortForwarder(
-                key="argo",
-                deployment="argo-server",
+                key="argo-server",
+                deployment="deployment/argo-server",
                 port=2746,
                 is_ui=True,
                 namespace="argo",
                 scheme="https",
             )
         )
+        port_forwarders.append(
+            PortForwarder(
+                "argo-events-webhook",
+                "service/argo-events-webhook-eventsource-svc",
+                12000,
+                True,
+                namespace="argo",
+                scheme="http",
+            )
+        )
     if include_airflow:
         port_forwarders.append(
             PortForwarder(
                 key="airflow",
-                deployment="airflow-deployment-webserver",
+                deployment="deployment/airflow-deployment-webserver",
                 port=8080,
                 is_ui=True,
                 namespace="airflow",

@@ -72,6 +72,7 @@ $ kubectl port-forward deployment/metadata-service 8080:8080
 $ kubectl port-forward deployment/metaflow-ui-backend-service 8083:8083
 $ kubectl port-forward deployment/metadata-ui-static-service 3000:3000
 $ kubectl port-forward -n argo deployment/argo-server 2746:2746
+$ kubectl port-forward -n argo service/argo-events-webhook-eventsource-svc 12000:12000
 
 option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
@@ -79,6 +80,23 @@ $ python forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
 STEP 4: Install Azure Python SDK
 $ pip install azure-storage-blob azure-identity
+
+ADVANCED TOPICS
+---------------
+
+Q: How to publish an Argo Event from outside the Kubernetes cluster?
+A: Ensure `forward_metaflow_ports.py --include-argo` is running. Here is a snippet that publishes
+   the event "foo" (consume this event with `@trigger(event="foo")`):
+```
+from metaflow.integrations import ArgoEvent
+
+def main():
+    evt = ArgoEvent('foo', url="http://localhost:12000/metaflow-event")
+    evt.publish(force=True)
+
+if __name__ == '__main__':
+    main()
+```
 
 #^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^
 EOT

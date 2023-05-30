@@ -27,7 +27,7 @@ Step 2 -> Option 2: Use service account key
 Ask for the pregenerated service account key (${local.service_account_key_file}) from the administrator (the person who stood up the Metaflow stack).
 Save the key file locally to your home directory. It should be made to be accessible only by you (chmod 700 <FILE>)
 
-Configure your local Kubernetes context to point to the the right Kubernetes cluster:
+STEP 2: Configure your local Kubernetes context to point to the the right Kubernetes cluster:
 
 $ gcloud container clusters get-credentials ${local.kubernetes_cluster_name} --region=${local.zone}
 
@@ -54,11 +54,33 @@ $ kubectl port-forward deployment/metadata-service 8080:8080
 $ kubectl port-forward deployment/metaflow-ui-backend-service 8083:8083
 $ kubectl port-forward deployment/metadata-service 3000:3000
 $ kubectl port-forward -n argo deployment/argo-server 2746:2746
+$ kubectl port-forward -n argo service/argo-events-webhook-eventsource-svc 12000:12000
 
 Step 4 -> option 2 - this script manages the same port-forwards for you (and prevents timeouts)
 
 $ python forward_metaflow_ports.py --use-gke-auth [--include-argo] [--include-airflow]
+$ python forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
+STEP 5: Install GCP Python SDK
+$ pip install google-cloud-storage google-auth
+>>>>>>> 72c5ecae49952dfc4020c163780ceff231f4b92a
+
+ADVANCED TOPICS
+---------------
+
+Q: How to publish an Argo Event from outside the Kubernetes cluster?
+A: Ensure `forward_metaflow_ports.py --include-argo` is running. Here is a snippet that publishes
+   the event "foo" (consume this event with `@trigger(event="foo")`):
+```
+from metaflow.integrations import ArgoEvent
+
+def main():
+    evt = ArgoEvent('foo', url="http://localhost:12000/metaflow-event")
+    evt.publish(force=True)
+
+if __name__ == '__main__':
+    main()
+```
 #^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^=^
 EOT
 }

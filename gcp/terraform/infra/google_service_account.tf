@@ -2,6 +2,9 @@ resource "google_service_account" "metaflow_kubernetes_workload_identity_service
   provider     = google-beta
   account_id   = var.metaflow_workload_identity_gsa_name
   display_name = "Service Account for Kubernetes Workload Identity (${terraform.workspace})"
+  provisioner "local-exec" {
+    command = "echo 'Wait a bit for GSA to be ready' && sleep 10"
+  }
 }
 
 resource "google_service_account_key" "metaflow_kubernetes_workload_identity_service_account_key" {
