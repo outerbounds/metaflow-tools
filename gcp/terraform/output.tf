@@ -63,7 +63,6 @@ $ python forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
 STEP 5: Install GCP Python SDK
 $ pip install google-cloud-storage google-auth
->>>>>>> 72c5ecae49952dfc4020c163780ceff231f4b92a
 
 ADVANCED TOPICS
 ---------------
