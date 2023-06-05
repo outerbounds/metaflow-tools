@@ -1,19 +1,19 @@
 terraform {
   required_providers {
     kubernetes = {
-      source  = "hashicorp/kubernetes"
+      source = "hashicorp/kubernetes"
     }
     google = {
-      source  = "hashicorp/google"
+      source = "hashicorp/google"
     }
     random = {
-      source  = "hashicorp/random"
+      source = "hashicorp/random"
     }
     local = {
-      source  = "hashicorp/local"
+      source = "hashicorp/local"
     }
     helm = {
-      source  = "hashicorp/helm"
+      source = "hashicorp/helm"
     }
   }
 }
