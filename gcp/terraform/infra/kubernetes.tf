@@ -41,9 +41,6 @@ resource "google_container_cluster" "metaflow_kubernetes" {
     http_load_balancing {
       disabled = !var.enable_ingress
     }
-    identity_service_config {
-      enabled = var.enable_iap
-    }
   }
   network         = google_compute_network.metaflow_compute_network.name
   subnetwork      = google_compute_subnetwork.metaflow_subnet_for_kubernetes.name
