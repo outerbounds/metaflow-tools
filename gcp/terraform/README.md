@@ -115,8 +115,4 @@ Some reasons include:
 
 For more details, see [Terraform docs](https://www.terraform.io/language/settings/backends/configuration).
 
-> _Currently, Terraform Cloud _will not work_ with these modules. Terraform Cloud doesn't have `kubectl` available and cannot create Argo or Airflow services correctly._
-
-## Ingress Suggestions
-
-
+> Currently, Terraform Cloud _will not work_ with these modules. Terraform Cloud doesn't have `kubectl` available and cannot create Argo or Airflow services correctly.
