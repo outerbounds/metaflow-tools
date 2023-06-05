@@ -37,16 +37,16 @@ Before you do anything, create a `FILE.tfvars` file with the following content (
 For `org_prefix`, choose a short and memorable alphanumeric string. It will be used for naming the Google Cloud Storage bucket, whose
 name must be globally unique across GCP.
 
-For `GCP_PROJECT_ID`, set the GCP project ID you wish to use.
+For `project`, set the GCP project ID you wish to use.
 
-`DB_GENERATION_NUM` should be updated each time the DB instance is recreated. This helps generate unique DB instance
+`db_generation_number` should be updated each time the DB instance is recreated. This helps generate unique DB instance
 names.  Backstory: DB instance names cannot repeat within 7 day window on GCP.
 
-`GCP_REGION` should be the region in GCP you want this cluster to deploy in.
+`region` should be the region in GCP you want this cluster to deploy in.
 
-`CPU_CORES` should be the total number of CPU cores the cluster is allowed to allocate. Defaults to 200.
+`max_cpu` should be the total number of CPU cores the cluster is allowed to allocate. Defaults to 200.
 
-`MEMORY_GB` should be the total amount of memory (in GBs) the cluster is allowed to allocate. Defaults to 400.
+`max_memory` should be the total amount of memory (in GBs) the cluster is allowed to allocate. Defaults to 400.
 
 You may rename `FILE.tfvars` to a more friendly name appropriate for your project.  E.g. `metaflow.poc.tfvars`.
 
