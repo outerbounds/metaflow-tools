@@ -41,6 +41,16 @@ variable "org_prefix" {
   type = string
 }
 
+variable "enable_ingress" {
+  type    = bool
+  default = false
+}
+
+variable "enable_iap" {
+  type    = bool
+  default = false
+}
+
 variable "oauth_clientid" {
   type    = string
   default = ""

@@ -10,6 +10,25 @@ variable "project" {
   type = string
 }
 
+variable "enable_ingress" {
+  type    = bool
+  default = false
+}
+
+variable "enable_iap" {
+  type    = bool
+  default = false
+}
+
+variable "oauth_clientid" {
+  type = string
+}
+
+variable "oauth_secret" {
+  type      = string
+  sensitive = true
+}
+
 variable "database_server_name" {
   type = string
 }

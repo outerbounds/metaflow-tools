@@ -77,6 +77,9 @@ module "infra" {
   region                              = var.region
   zone                                = local.zone
   project                             = var.project
+  enable_ingress                      = var.enable_ingress
+  oauth_clientid                      = var.oauth_clientid
+  oauth_secret                        = var.oauth_secret
   database_server_name                = local.database_server_name
   kubernetes_cluster_name             = local.kubernetes_cluster_name
   storage_bucket_name                 = local.storage_bucket_name
