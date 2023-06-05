@@ -41,6 +41,17 @@ variable "org_prefix" {
   type = string
 }
 
+variable "oauth_clientid" {
+  type    = string
+  default = ""
+}
+
+variable "oauth_secret" {
+  type      = string
+  default   = ""
+  sensitive = true
+}
+
 variable "db_generation_number" {
   type    = number
   default = 0
