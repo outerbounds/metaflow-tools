@@ -1,6 +1,6 @@
 # Complete Metaflow Terraform Example
 
-This directory contains a set of Terraform configuration files for deploying a complete, end-to-end set of resources for running Metaflow on AWS using Terraform modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow). 
+This directory contains a set of Terraform configuration files for deploying a complete, end-to-end set of resources for running Metaflow on AWS using Terraform modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow).
 
 This repo only contains configuration for non-Metaflow-specific resources, such as AWS VPC infra and Sagemaker notebook instance; Metaflow-specific parts are provided by reusable modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow).
 
@@ -40,7 +40,7 @@ terraform apply --var-file prod.tfvars
 
 ### Metaflow stack
 
-The metaflow sub-project uses modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow) to provision the Metaflow service, AWS Step Functions, and AWS Batch resources. 
+The metaflow sub-project uses modules from [terraform-aws-metaflow](https://github.com/outerbounds/terraform-aws-metaflow) to provision the Metaflow service, AWS Step Functions, and AWS Batch resources.
 
 Copy `example.tfvars` to `prod.tfvars` (or whatever environment name you prefer) and update that `env` name and the `region` as needed. These variables are used to construct unique names for infrastructure resources.
 

@@ -7,12 +7,12 @@ resource "azurerm_private_dns_zone_virtual_network_link" "metaflow_database_priv
   name                  = "metaflowDatabaseVnetZone.com"
   private_dns_zone_name = azurerm_private_dns_zone.metaflow_database_private_dns_zone.name
   virtual_network_id    = azurerm_virtual_network.metaflow_virtual_network.id
-  resource_group_name = azurerm_resource_group.metaflow_resource_group.name
+  resource_group_name   = azurerm_resource_group.metaflow_resource_group.name
 }
 
 resource "azurerm_postgresql_flexible_server" "metaflow_database_server" {
   name                   = var.database_server_name
-  resource_group_name = azurerm_resource_group.metaflow_resource_group.name
+  resource_group_name    = azurerm_resource_group.metaflow_resource_group.name
   location               = azurerm_resource_group.metaflow_resource_group.location
   version                = "12"
   delegated_subnet_id    = azurerm_subnet.metaflow_database_subnet.id

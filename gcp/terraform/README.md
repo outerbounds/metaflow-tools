@@ -65,7 +65,7 @@ After you have changed the value of `deploy_argo`, re-apply terraform for both [
 
 **This is quickstart template only, not recommended for real production deployments**
 
-If `deploy_airflow`  is set to true, then the `services` module will deploy Airflow via a [helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html) into the kubernetes cluster (the one deployed by the `infra` module). 
+If `deploy_airflow`  is set to true, then the `services` module will deploy Airflow via a [helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html) into the kubernetes cluster (the one deployed by the `infra` module).
 
 The terraform template deploys Airflow configured with a `LocalExecutor`. Metaflow can work with any Airflow executor. This template deploys the `LocalExecutor` for simplicity.
 

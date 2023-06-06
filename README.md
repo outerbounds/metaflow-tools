@@ -1,5 +1,5 @@
-[![](https://img.shields.io/badge/slack-@outerbounds-purple.svg?logo=slack )](http://slack.outerbounds.co/) 
- 
+[![](https://img.shields.io/badge/slack-@outerbounds-purple.svg?logo=slack )](http://slack.outerbounds.co/)
+
 # ⚒️ Metaflow Admin Tools
 
 This repository contains various configuration files, tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow documentation](https://docs.metaflow.org) for more information about Metaflow architecture. Top level folders are structured as follows:

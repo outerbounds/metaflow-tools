@@ -23,10 +23,10 @@ resource "google_sql_database_instance" "metaflow_database_server" {
 }
 
 resource "google_sql_user" "metaflow_db_user" {
-  provider = google-beta
-  name     = "metaflow"
-  instance = google_sql_database_instance.metaflow_database_server.id
-  password = "metaflow"
+  provider        = google-beta
+  name            = "metaflow"
+  instance        = google_sql_database_instance.metaflow_database_server.id
+  password        = "metaflow"
   deletion_policy = "ABANDON"
 }
 
@@ -35,4 +35,3 @@ resource "google_sql_database" "metaflow_database" {
   name     = "metaflow"
   instance = google_sql_database_instance.metaflow_database_server.id
 }
-
