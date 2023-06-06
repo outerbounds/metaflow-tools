@@ -30,5 +30,9 @@ are used to drive end-to-end CI coverage internally at Outerbounds.  They live u
 ## Utility scripts (/scripts)
 Scripts that make life easier either deploying or using your new Metaflow stacks.
 
+## Precommit Hooks
+
+We use [pre-commit](https://pre-commit.com/#install) to do some basic linting and other checks on this repo.
+
 # Questions?
 Talk to us on [Slack](http://http://slack.outerbounds.co/).
