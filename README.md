@@ -32,7 +32,7 @@ Scripts that make life easier either deploying or using your new Metaflow stacks
 
 ## Precommit Hooks
 
-We use [pre-commit](https://pre-commit.com/#install) to do some basic linting and other checks on this repo.
+We use [pre-commit](https://pre-commit.com/#install) to do some basic linting and other checks on this repo. You can see all linting steps in [the precommit config](.pre-commit-config.yaml).
 
 # Questions?
 Talk to us on [Slack](http://http://slack.outerbounds.co/).
