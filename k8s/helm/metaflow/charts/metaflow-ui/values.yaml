@@ -2,11 +2,12 @@ uiBackend:
   image:
     name: public.ecr.aws/outerbounds/metaflow_metadata_service
     pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
     tag: ""
 
   podAnnotations: {}
 
-  env:
+  env: []
     # Additional environment variables for metaflow-ui static deployment. Example config:
     # - name: METAFLOW_SERVICE
     #   value: "http://localhost:8083/api/"
@@ -119,6 +120,3 @@ ingress:
         - path: /api
           pathType: ImplementationSpecific
   tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local

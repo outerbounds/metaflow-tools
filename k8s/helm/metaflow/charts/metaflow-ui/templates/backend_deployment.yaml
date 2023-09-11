@@ -61,8 +61,10 @@ spec:
               value: {{ .Values.uiBackend.metaflowDatastoreSysRootS3 | quote }}
             - name: METAFLOW_DATASTORE_SYSROOT_S3
               value: {{ .Values.uiBackend.metaflowDatastoreSysRootS3 | quote }}
+            {{- if .Values.uiBackend.metaflowS3EndpointURL }}
             - name: METAFLOW_S3_ENDPOINT_URL
               value: {{ .Values.uiBackend.metaflowS3EndpointURL | quote }}
+            {{- end }}
             - name: LOGLEVEL
               value: "DEBUG"
             - name: METAFLOW_SERVICE_URL
