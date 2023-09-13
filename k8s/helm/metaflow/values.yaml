@@ -5,6 +5,9 @@ metaflow-service:
     user: metaflow
 
 metaflow-ui:
+  # Note: for security reasons, these values should NOT be set in plain text.
+  #       Better options of passing these values are using environment variables,
+  #       kubernetes secret + values file, etc.
   metadatadb:
     password: metaflow
     name: metaflow

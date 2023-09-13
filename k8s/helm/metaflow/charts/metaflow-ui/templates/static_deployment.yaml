@@ -5,9 +5,7 @@ metadata:
   labels:
     {{- include "metaflow-ui.labelsStatic" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.uiStatic.replicaCount }}
   selector:
     matchLabels:
       {{- include "metaflow-ui.selectorLabelsStatic" . | nindent 6 }}
@@ -31,8 +29,8 @@ spec:
         - name: "{{ .Chart.Name }}-static"
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.uiImage.repository }}:{{ .Values.uiImage.tag }}"
-          imagePullPolicy: {{ .Values.uiImage.pullPolicy }}
+          image: "{{ .Values.uiStatic.image.name }}:{{ .Values.uiStatic.image.tag }}"
+          imagePullPolicy: {{ .Values.uiStatic.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 3000
@@ -45,8 +43,15 @@ spec:
             httpGet:
               path: /
               port: http
+          env:
+            - name: METAFLOW_SERVICE
+              value:  {{ .Values.uiStatic.metaflowUIBackendURL | quote }}
+            {{- range .Values.env }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+            {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.uiStatic.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

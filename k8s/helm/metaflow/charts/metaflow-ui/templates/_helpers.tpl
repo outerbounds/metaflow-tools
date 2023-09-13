@@ -97,22 +97,22 @@ Create the name of the service account to use
 
 {{- define "metaflow-ui.metadatadbEnvVars" -}}
 - name: MF_METADATA_DB_NAME
-  value: {{ .Values.metadatadb.name | quote }}
+  value: {{ .Values.uiBackend.metadatadb.name | quote }}
 - name: MF_METADATA_DB_PORT
-  value: {{ .Values.metadatadb.port | quote }}
+  value: {{ .Values.uiBackend.metadatadb.port | quote }}
 - name: MF_METADATA_DB_PSWD
-  value: {{ .Values.metadatadb.password | quote }}
+  value: {{ .Values.uiBackend.metadatadb.password | quote }}
 - name: MF_METADATA_DB_USER
-  value: {{ .Values.metadatadb.user | quote }}
-{{- if .Values.metadatadb.host }}
+  value: {{ .Values.uiBackend.metadatadb.user | quote }}
+{{- if .Values.uiBackend.metadatadb.host }}
 - name: MF_METADATA_DB_HOST
-  value: {{ .Values.metadatadb.host | quote }}
+  value: {{ .Values.uiBackend.metadatadb.host | quote }}
 {{- else }}
 - name: MF_METADATA_DB_HOST
   value: {{ .Release.Name }}-postgresql
 {{- end -}}
-{{- if .Values.metadatadb.schema }}
+{{- if .Values.uiBackend.metadatadb.schema }}
 - name: DB_SCHEMA_NAME
-  value: {{ .Values.metadatadb.schema | quote }}
+  value: {{ .Values.uiBackend.metadatadb.schema | quote }}
 {{- end }}
 {{- end -}}

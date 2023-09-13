@@ -11,5 +11,5 @@ spec:
     - name: wget
       image: busybox
       command: ['wget']
-      args: ['{{ include "metaflow-ui.fullname" . }}:{{ .Values.service.port }}']
+      args: ['{{ include "metaflow-ui.fullname" . }}:{{ .Values.uiBackend.service.port }}']
   restartPolicy: Never

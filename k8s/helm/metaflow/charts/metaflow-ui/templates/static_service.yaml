@@ -5,9 +5,9 @@ metadata:
   labels:
     {{- include "metaflow-ui.labelsStatic" . | nindent 4 }}
 spec:
-  type: {{ .Values.serviceStatic.type }}
+  type: {{ .Values.uiStatic.service.type }}
   ports:
-    - port: {{ .Values.serviceStatic.port }}
+    - port: {{ .Values.uiStatic.service.port }}
       targetPort: http
       protocol: TCP
       name: http

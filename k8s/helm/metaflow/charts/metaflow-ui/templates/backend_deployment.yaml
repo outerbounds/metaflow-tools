@@ -5,15 +5,13 @@ metadata:
   labels:
     {{- include "metaflow-ui.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: {{ .Values.uiBackend.replicaCount }}
   selector:
     matchLabels:
       {{- include "metaflow-ui.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
+      {{- with .Values.uiBackend.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -31,9 +29,9 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.uiBackend.image.name }}:{{ .Values.uiBackend.image.tag | default .Chart.AppVersion }}"
           command: ["/opt/latest/bin/python3", "-m", "services.ui_backend_service.ui_server" ]
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.uiBackend.image.pullPolicy }}
           ports:
             - name: http
               containerPort: 8083
@@ -46,12 +44,12 @@ spec:
             httpGet:
               path: /api/ping
               port: http
-          {{- with .Values.envFrom }}
+          {{- with .Values.uiBackend.envFrom }}
           envFrom:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
-            {{- range .Values.env }}
+            {{- range .Values.uiBackend.env }}
             - name: {{ .name | quote }}
               value: {{ .value | quote }}
             {{- end }}
@@ -60,20 +58,24 @@ spec:
             - name: PATH_PREFIX
               value: "/api"
             - name: MF_DATASTORE_ROOT
-              value: {{ .Values.METAFLOW_DATASTORE_SYSROOT_S3 | quote }}
+              value: {{ .Values.uiBackend.metaflowDatastoreSysRootS3 | quote }}
             - name: METAFLOW_DATASTORE_SYSROOT_S3
-              value: {{ .Values.METAFLOW_DATASTORE_SYSROOT_S3 | quote }}
+              value: {{ .Values.uiBackend.metaflowDatastoreSysRootS3 | quote }}
+            {{- if .Values.uiBackend.metaflowS3EndpointURL }}
+            - name: METAFLOW_S3_ENDPOINT_URL
+              value: {{ .Values.uiBackend.metaflowS3EndpointURL | quote }}
+            {{- end }}
             - name: LOGLEVEL
               value: "DEBUG"
             - name: METAFLOW_SERVICE_URL
-              value: "http://localhost:8083/api/metadata"
+              value: {{ .Values.uiBackend.metaflowServiceURL | quote }}
             - name: METAFLOW_DEFAULT_DATASTORE
               value: "s3"
             - name: METAFLOW_DEFAULT_METADATA
               value: "service"
             {{- include "metaflow-ui.metadatadbEnvVars" . | nindent 12 }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.uiBackend.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
