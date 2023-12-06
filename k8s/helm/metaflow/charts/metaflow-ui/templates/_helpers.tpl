@@ -95,6 +95,17 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+Create the backendURL, which differs if we use an ingress or not.
+*/}}
+{{- define "metaflow-ui.staticUIBackendURL" -}}
+{{- if .Values.ingress.enabled }}
+{{- default "http://localhost/api/" .Values.uiStatic.metaflowUIBackendURL }}
+{{- else }}
+{{- default "http://localhost:8083/api/" .Values.uiStatic.metaflowUIBackendURL }}
+{{- end }}
+{{- end }}
+
 {{- define "metaflow-ui.metadatadbEnvVars" -}}
 - name: MF_METADATA_DB_NAME
   value: {{ .Values.uiBackend.metadatadb.name | quote }}
