@@ -1,7 +1,7 @@
 resource "google_compute_network" "metaflow_compute_network" {
   provider = google-beta
 
-  name = "vpc-metaflow-${terraform.workspace}"
+  name                    = "vpc-metaflow-${terraform.workspace}"
   auto_create_subnetworks = false
 }
 

@@ -56,12 +56,12 @@ Please note: This section can be ignored if `EnableUI` is set to false (this is 
 
 This template deploys the UI with authentication using Amazon Cognito. For Cognito to work, you'll need to provide a DNS name and SSL certificate from AWS ACM. That means you'll need a few additional steps if using the UI:
 
-1. Figure out what DNS name to use, that you have control of. You can either register a new domain name, or create a subdomain. 
+1. Figure out what DNS name to use, that you have control of. You can either register a new domain name, or create a subdomain.
 2. Generate and verify a SSL certificate valid for that name using AWS ACM. Follow [the instructions from AWS](https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html) for this.
 3. Deploy this Cloudformation template. You'll need to set `EnableUI` to "true", and in addition to this:
     - set `PublicDomainName` to the domain name you chose
     - set `CertificateArn` to the certificate ARN from step 2 above
 4. After Cloudformation template is deployed, make note of `LoadBalancerUIDNSName` output value. You'll need to modify  DNS settings to point your domain name to that name.
-    * If you're using Route53, create an A record that is an Alias and choose the load balancer from the drop down. 
+    * If you're using Route53, create an A record that is an Alias and choose the load balancer from the drop down.
     * If using a different DNS management tool/registrar, create a CNAME record that points to `LoadBalancerUIDNSName`
 5. After DNS changes propagate, you should be able to navigate to the DNS name in your browser and see a login prompt. To create a user, go to AWS Console -> Cognito -> User Pools, find the pool that corresponds to this stack and create a new user under "Users and Groups".

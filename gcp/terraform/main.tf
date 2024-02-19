@@ -60,7 +60,7 @@ provider "helm" {
     host                   = "https://${data.google_container_cluster.default.endpoint}"
     cluster_ca_certificate = base64decode(data.google_container_cluster.default.master_auth[0].cluster_ca_certificate)
     token                  = data.google_client_config.default.access_token
-    # token is required here and we remove `client_certificate` / `client_key` because it results in this error like : 
+    # token is required here and we remove `client_certificate` / `client_key` because it results in this error like :
     # `Error: unable to build kubernetes objects from release manifest: unknown`
     # More notes on this issue can be found here : https://github.com/hashicorp/terraform-provider-helm/issues/513
   }

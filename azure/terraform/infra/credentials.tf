@@ -13,13 +13,13 @@ resource "azuread_application" "service_principal_application" {
 
 resource "azuread_service_principal" "service_principal" {
   application_id = azuread_application.service_principal_application.application_id
-  owners       = [data.azuread_client_config.current.object_id]
+  owners         = [data.azuread_client_config.current.object_id]
 }
 
 # This will be used as a AZURE_CLIENT_SECRET in Metaflow's AKS workloads
 resource "azuread_service_principal_password" "service_principal_password" {
   service_principal_id = azuread_service_principal.service_principal.id
-  display_name = azuread_service_principal.service_principal.display_name
+  display_name         = azuread_service_principal.service_principal.display_name
 }
 
 # Allow the new service principal to access the storage container

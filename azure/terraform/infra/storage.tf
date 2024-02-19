@@ -15,4 +15,3 @@ resource "azurerm_storage_container" "metaflow_storage_container" {
   storage_account_name  = azurerm_storage_account.metaflow_storage_account.name
   container_access_type = "private"
 }
-
