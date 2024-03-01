@@ -24,7 +24,7 @@ The templates are organized into two modules, `infra` and `services`.
 
 Before you do anything, create a TF vars file `FILE.tfvars` (`FILE` could be something else), with this content.
 
-    org_prefix = "yourorg"  # use something short and distinctive
+    org_prefix = "yourorg"  # must be seven characters or fewer
 
 This is used to help generate unique resource names for:
 * DB server name
