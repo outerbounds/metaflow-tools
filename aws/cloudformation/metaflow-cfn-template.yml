@@ -592,7 +592,7 @@ Resources:
     Properties:
       DBName: 'metaflow'
       AllocatedStorage: 20
-      DBInstanceClass: 'db.t2.small'
+      DBInstanceClass: 'db.t3.small'
       DeleteAutomatedBackups: 'true'
       StorageType: 'gp2'
       Engine: 'postgres'
