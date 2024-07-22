@@ -6,7 +6,7 @@ This repo only contains configuration for non-Metaflow-specific resources, such 
 
 > Note: The reusable terraform module (source code [here](https://github.com/outerbounds/terraform-aws-metaflow)) itself includes a couple of full "start-from-scratch" examples of:
 > * a [minimal Metaflow stack](https://github.com/outerbounds/terraform-aws-metaflow/tree/master/examples/minimal) (using AWS Batch for compute and AWS Step Functions for orchestration)
-> * a [Kubernetes based Metaflow stack](https://github.com/outerbounds/terraform-aws-metaflow/tree/master/examples/eks) (using AWS EKS for compute, and Argo Workflows for orchestration)
+> * a [Kubernetes based Metaflow stack](https://github.com/outerbounds/terraform-aws-metaflow/tree/master/examples/eks_argo) (using AWS EKS for compute, and Argo Workflows for orchestration)
 
 ## Pre-requisites
 
