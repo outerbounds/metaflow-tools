@@ -1416,8 +1416,11 @@ Resources:
         InstanceRole: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !GetAtt 'ECSInstanceProfile.Arn']
         InstanceTypes: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref ComputeEnvInstanceTypes]
         DesiredvCpus: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref DesiredVCPUBatch]
-        LaunchTemplate:
-          LaunchTemplateId: !Ref BatchLaunchTemplateMetaFlow
+        LaunchTemplate: !If
+          - EnableFargateOnBatch
+          - !Ref AWS::NoValue
+          - LaunchTemplateSpecification:
+              LaunchTemplateId: !Ref BatchLaunchTemplateMetaFlow
       State: ENABLED
   JobQueue:
     DependsOn: ComputeEnvironment
