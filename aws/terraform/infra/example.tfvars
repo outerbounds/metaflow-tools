@@ -1,2 +1,2 @@
-env                           = "prod"
-aws_region                    = "us-west-2"
+env        = "prod"
+aws_region = "us-west-2"

@@ -79,4 +79,3 @@ variable "deploy_airflow" {
 variable "airflow_logs_bucket_path" {
   type = string
 }
-

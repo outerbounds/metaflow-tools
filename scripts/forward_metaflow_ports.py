@@ -16,15 +16,17 @@ DEFAULT_PORT_FW_CONFIGS = {
         "is_ui": False,
     },
     "ui-static": {
-        'target': "deployment/metaflow-ui-static-service",
+        "target": "deployment/metaflow-ui-static-service",
         "port": 3000,
-        "is_ui": True
-    }
+        "is_ui": True,
+    },
 }
 
 
 class PortForwarder(object):
-    def __init__(self, key, target, port, is_ui, namespace=None, scheme='http', output_port=None):
+    def __init__(
+        self, key, target, port, is_ui, namespace=None, scheme="http", output_port=None
+    ):
         # target can be "deployment/<name>" or "service/<name>"
         self.key = key
         self.target = target
@@ -41,14 +43,22 @@ class PortForwarder(object):
         return self.port_fwd_proc is not None and self.port_fwd_proc.returncode is None
 
     def get_browser_hint(self):
-        return "Open %s at %s://localhost:%d" % (self.target, self.scheme, self.output_port,)
+        return "Open %s at %s://localhost:%d" % (
+            self.target,
+            self.scheme,
+            self.output_port,
+        )
 
     def start_new_port_fwd_proc(self):
         cmd = ["kubectl", "port-forward", self.target]
         if self.namespace:
             cmd.extend(["-n", self.namespace])
-        cmd.append("{output_port}:{port}".format(port=self.port, output_port=self.output_port))
-        self.port_fwd_proc = subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        cmd.append(
+            "{output_port}:{port}".format(port=self.port, output_port=self.output_port)
+        )
+        self.port_fwd_proc = subprocess.Popen(
+            cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
         log("Started port forward for %s" % self.target)
 
     def stop_port_fwd_proc(self):
@@ -85,13 +95,15 @@ def log(s):
 def run(include_argo, include_airflow):
     port_forwarders = []
     for key, config in DEFAULT_PORT_FW_CONFIGS.items():
-        port_forwarders.append(PortForwarder(
-            key,
-            config["target"],
-            config["port"],
-            config["is_ui"],
-            namespace=config.get("namespace", None)
-        ))
+        port_forwarders.append(
+            PortForwarder(
+                key,
+                config["target"],
+                config["port"],
+                config["is_ui"],
+                namespace=config.get("namespace", None),
+            )
+        )
     if include_argo:
         port_forwarders.append(
             PortForwarder(
@@ -100,7 +112,7 @@ def run(include_argo, include_airflow):
                 2746,
                 True,
                 namespace="argo",
-                scheme='https'
+                scheme="https",
             )
         )
         port_forwarders.append(
@@ -110,7 +122,7 @@ def run(include_argo, include_airflow):
                 12000,
                 True,
                 namespace="argo",
-                scheme='http'
+                scheme="http",
             )
         )
     if include_airflow:
@@ -121,8 +133,8 @@ def run(include_argo, include_airflow):
                 8080,
                 True,
                 namespace="airflow",
-                scheme='https',
-                output_port=9090
+                scheme="https",
+                output_port=9090,
             )
         )
     try:
@@ -141,11 +153,19 @@ def run(include_argo, include_airflow):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Maintain port forwards to Kubernetes Metaflow stack")
-    parser.add_argument('--include-argo', action='store_true',
-                        help="Do port forward for argo server (needed for Argo UI)")
-    parser.add_argument('--include-airflow', action='store_true',
-                        help="Do port forward for argo server (needed for Argo UI)")
+    parser = argparse.ArgumentParser(
+        description="Maintain port forwards to Kubernetes Metaflow stack"
+    )
+    parser.add_argument(
+        "--include-argo",
+        action="store_true",
+        help="Do port forward for argo server (needed for Argo UI)",
+    )
+    parser.add_argument(
+        "--include-airflow",
+        action="store_true",
+        help="Do port forward for argo server (needed for Argo UI)",
+    )
 
     args = parser.parse_args()
 
@@ -164,5 +184,5 @@ def main():
     return run(args.include_argo, args.include_airflow)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())
