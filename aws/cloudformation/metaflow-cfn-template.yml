@@ -1,12 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Stack for complete deployment of Metaflow (last-updated-date 10/26/2021)
+Description: Stack for complete deployment of Metaflow (last-updated-date 07/26/2024)
 
 Parameters:
   SagemakerInstance:
     Type: String
     Default: ml.t2.xlarge
-    AllowedValues: ['ml.t2.large','ml.t2.xlarge','ml.t2.2xlarge']
-    Description: 'Instance type for Sagemaker Notebook.'
+    AllowedValues: ['ml.t2.large','ml.t2.xlarge','ml.t2.2xlarge','ml.g5.xlarge','ml.g5.2xlarge']
+    Description: 'Instance type for Sagemaker Notebook. Choose g5 instances if you need a GPU.'
   VPCCidr:
     Type: String
     Default: 10.20.0.0/16
@@ -19,6 +19,11 @@ Parameters:
     Type: String
     Default: 10.20.1.0/24
     Description: 'CIDR for Metaflow VPC Subnet 2'
+  FileSystemSizeBatchInstances:
+    Type: Number
+    Default: 30
+    MinValue: 1
+    Description: 'File System Size in GB of launched EC2 instances through Batch.'
   MaxVCPUBatch:
     Type: Number
     Default: 64
@@ -30,18 +35,18 @@ Parameters:
     Default: 8
     MinValue: 0
     MaxValue: 16
-    AllowedValues: [0,2,4,8,16]
+    AllowedValues: [0,1,2,4,8,16]
     Description: 'Minimum VCPUs for Batch Compute Environment [0-16] for EC2 Batch Compute Environment (ignored for Fargate)'
   DesiredVCPUBatch:
     Type: Number
     Default: 8
     MinValue: 0
     MaxValue: 16
-    AllowedValues: [0,2,4,8,16]
+    AllowedValues: [0,1,2,4,8,16]
     Description: 'Desired Starting VCPUs for Batch Compute Environment [0-16] for EC2 Batch Compute Environment (ignored for Fargate)'
   ComputeEnvInstanceTypes:
     Type: CommaDelimitedList
-    Default: "c4.large,c4.xlarge,c4.2xlarge,c4.4xlarge,c4.8xlarge"
+    Default: "r7a.medium,r7a.large,r7a.xlarge,r7a.2xlarge,r7a.4xlarge,r7a.8xlarge,c7a.medium,c7a.large,c7a.xlarge,c7a.2xlarge,c7a.4xlarge,c7a.8xlarge"
     Description: "The instance types for the compute environment as a comma-separated list"
   CustomRole:
     Type: String
@@ -92,7 +97,7 @@ Mappings:
     ServiceName:
       value: 'metadata-service-v2'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: 'netflixoss/metaflow_metadata_service:v2.4.11'
     ContainerPort:
       value: 8080
     ContainerCpu:
@@ -113,7 +118,7 @@ Mappings:
     ServiceName:
       value: 'metaflow-ui-service'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: 'netflixoss/metaflow_metadata_service:v2.4.11'
     ContainerPort:
       value: 8083
     ContainerCpu:
@@ -134,7 +139,7 @@ Mappings:
     ServiceName:
       value: 'metadata-ui-static'
     ImageUrl:
-      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.2.4'
+      value: 'public.ecr.aws/outerbounds/metaflow_ui:1.3.13'
     ContainerPort:
       value: 3000
     ContainerCpu:
@@ -596,7 +601,7 @@ Resources:
       DeleteAutomatedBackups: 'true'
       StorageType: 'gp2'
       Engine: 'postgres'
-      EngineVersion: '11'
+      EngineVersion: '13.15'
       MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:username}}' ]]
       MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:password}}' ]]
       VPCSecurityGroups:
@@ -1383,8 +1388,19 @@ Resources:
               Condition:
                 StringEquals:
                   ec2:CreateAction: RunInstances
+  BatchLaunchTemplateMetaFlow:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: "BatchLaunchTemplateMetaFlow"
+      LaunchTemplateData:
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              VolumeSize: 100
+              VolumeType: gp2
   ComputeEnvironment:
     Type: AWS::Batch::ComputeEnvironment
+    DependsOn: BatchLaunchTemplateMetaFlow
     Properties:
       Type: MANAGED
       ServiceRole: !GetAtt 'BatchExecutionRole.Arn'
@@ -1400,6 +1416,11 @@ Resources:
         InstanceRole: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !GetAtt 'ECSInstanceProfile.Arn']
         InstanceTypes: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref ComputeEnvInstanceTypes]
         DesiredvCpus: !If [EnableFargateOnBatch, !Ref AWS::NoValue, !Ref DesiredVCPUBatch]
+        LaunchTemplate: !If
+          - EnableFargateOnBatch
+          - !Ref AWS::NoValue
+          - LaunchTemplateSpecification:
+              LaunchTemplateId: !Ref BatchLaunchTemplateMetaFlow
       State: ENABLED
   JobQueue:
     DependsOn: ComputeEnvironment
