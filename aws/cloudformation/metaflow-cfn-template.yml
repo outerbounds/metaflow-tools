@@ -92,7 +92,7 @@ Mappings:
     ServiceName:
       value: 'metadata-service-v2'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: 'netflixoss/metaflow_metadata_service:v2.4.12'
     ContainerPort:
       value: 8080
     ContainerCpu:
@@ -113,7 +113,7 @@ Mappings:
     ServiceName:
       value: 'metaflow-ui-service'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: 'netflixoss/metaflow_metadata_service:v2.4.12'
     ContainerPort:
       value: 8083
     ContainerCpu:
