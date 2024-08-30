@@ -415,6 +415,8 @@ Resources:
               Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
             - Name: "MF_METADATA_DB_PORT"
               Value: "5432"
+            - Name: "MF_METADATA_DB_SSL_MODE"
+              Value: "prefer"
             - Name: "MF_METADATA_DB_USER"
               Value: "master"
             - Name: "MF_METADATA_DB_PSWD"
@@ -1625,6 +1627,8 @@ Resources:
               Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
             - Name: "MF_METADATA_DB_PORT"
               Value: "5432"
+            - Name: "MF_METADATA_DB_SSL_MODE"
+              Value: "prefer"
             - Name: "MF_METADATA_DB_USER"
               Value: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:username}}' ]]
             - Name: "MF_METADATA_DB_PSWD"
