@@ -92,7 +92,7 @@ Mappings:
     ServiceName:
       value: 'metadata-service-v2'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: 'netflixoss/metaflow_metadata_service:v2.4.12'
     ContainerPort:
       value: 8080
     ContainerCpu:
@@ -113,7 +113,7 @@ Mappings:
     ServiceName:
       value: 'metaflow-ui-service'
     ImageUrl:
-      value: 'netflixoss/metaflow_metadata_service:v2.3.5'
+      value: 'netflixoss/metaflow_metadata_service:v2.4.12'
     ContainerPort:
       value: 8083
     ContainerCpu:
@@ -415,6 +415,8 @@ Resources:
               Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
             - Name: "MF_METADATA_DB_PORT"
               Value: "5432"
+            - Name: "MF_METADATA_DB_SSL_MODE"
+              Value: "prefer"
             - Name: "MF_METADATA_DB_USER"
               Value: "master"
             - Name: "MF_METADATA_DB_PSWD"
@@ -1625,6 +1627,8 @@ Resources:
               Value: !GetAtt 'RDSMasterInstance.Endpoint.Address'
             - Name: "MF_METADATA_DB_PORT"
               Value: "5432"
+            - Name: "MF_METADATA_DB_SSL_MODE"
+              Value: "prefer"
             - Name: "MF_METADATA_DB_USER"
               Value: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:username}}' ]]
             - Name: "MF_METADATA_DB_PSWD"
