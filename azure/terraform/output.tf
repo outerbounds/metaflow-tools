@@ -1,6 +1,6 @@
 output "END_USER_SETUP_INSTRUCTIONS" {
   depends_on = [module.services]
-  value = <<EOT
+  value      = <<EOT
 V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V=V
 Setup instructions for END USERS (e.g. someone running Flows vs the new stack):
 -------------------------------------------------------------------------------
@@ -37,9 +37,9 @@ Copy config.json to ~/.metaflowconfig/config.json:
 
 $ cp config.json ~/.metaflowconfig/config.json
 
-If deployed with Airflow or Argo then remove the `METAFLOW_KUBERNETES_SERVICE_ACCOUNT` key from the json file. 
-If deployed with Airflow set `METAFLOW_KUBERNETES_NAMESPACE` to "airflow". 
-If deployed with Argo set `METAFLOW_KUBERNETES_NAMESPACE` to "argo". 
+If deployed with Airflow or Argo then remove the `METAFLOW_KUBERNETES_SERVICE_ACCOUNT` key from the json file.
+If deployed with Airflow set `METAFLOW_KUBERNETES_NAMESPACE` to "airflow".
+If deployed with Argo set `METAFLOW_KUBERNETES_NAMESPACE` to "argo".
 
 Option 2: Interactive configuration
 
@@ -103,7 +103,7 @@ EOT
 }
 
 output "SERVICE_PRINCIPAL_CREDENTIALS" {
-  value = <<EOT
+  value     = <<EOT
 AZURE_TENANT_ID=${module.infra.service_principal_tenant_id}
 AZURE_CLIENT_ID=${module.infra.service_principal_client_id}
 AZURE_CLIENT_SECRET=${module.infra.service_principal_client_secret}

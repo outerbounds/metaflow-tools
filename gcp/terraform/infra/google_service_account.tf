@@ -1,4 +1,4 @@
-resource google_service_account "metaflow_kubernetes_workload_identity_service_account" {
+resource "google_service_account" "metaflow_kubernetes_workload_identity_service_account" {
   provider     = google-beta
   account_id   = var.metaflow_workload_identity_gsa_name
   display_name = "Service Account for Kubernetes Workload Identity (${terraform.workspace})"
@@ -11,7 +11,7 @@ resource "google_service_account_key" "metaflow_kubernetes_workload_identity_ser
   service_account_id = google_service_account.metaflow_kubernetes_workload_identity_service_account.name
 }
 
-resource "local_file" metaflow_gsa_key {
+resource "local_file" "metaflow_gsa_key" {
   filename = var.service_account_key_file
   content  = base64decode(google_service_account_key.metaflow_kubernetes_workload_identity_service_account_key.private_key)
 }

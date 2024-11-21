@@ -42,7 +42,7 @@ Next, apply the `infra` module (creates Azure cloud resources only).
 
 If you do not create Azure PostgreSQL Flexible Server instances often, Azure API may be flaky initially:
 
-    | Error: waiting for creation of the Postgresql Flexible Server "metaflow-database-server-xyz" (Resource Group "rg-db-metaflow-xyz"): 
+    | Error: waiting for creation of the Postgresql Flexible Server "metaflow-database-server-xyz" (Resource Group "rg-db-metaflow-xyz"):
     | Code="InternalServerError" Message="An unexpected error occured while processing the request. Tracking ID: 'xyz'"
     |
     |   with module.infra.azurerm_postgresql_flexible_server.metaflow_database_server,
@@ -57,22 +57,22 @@ on real-time availability of such instances in your region or availability zone,
 
 **VM Availability** issues might look something like this:
 
-    | Error: waiting for creation of Node Pool: (Agent Pool Name "taskworkers" / Managed Cluster Name "metaflow-kubernetes-xyz" / 
-    | Resource Group "rg-k8s-metaflow-xyz"): Code="ReconcileVMSSAgentPoolFailed" Message="Code=\"AllocationFailed\" Message=\"Allocation failed. 
-    | We do not have sufficient capacity for the requested VM size in this region. Read more about improving likelihood of allocation success 
+    | Error: waiting for creation of Node Pool: (Agent Pool Name "taskworkers" / Managed Cluster Name "metaflow-kubernetes-xyz" /
+    | Resource Group "rg-k8s-metaflow-xyz"): Code="ReconcileVMSSAgentPoolFailed" Message="Code=\"AllocationFailed\" Message=\"Allocation failed.
+    | We do not have sufficient capacity for the requested VM size in this region. Read more about improving likelihood of allocation success
     | at http://aka.ms/allocation-guidance\""
 
 **VM quotas** may also cause provisioning to fail:
 
-    | Error: creating Node Pool: (Agent Pool Name "taskworkers" / Managed Cluster Name "metaflow-kubernetes-default" / Resource Group "rg-k8s-metaflow-default"): 
-    | containerservice.AgentPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="PreconditionFailed" 
-    | Message="Provisioning of resource(s) for Agent Pool taskworkers failed. Error: {\n  \"code\": \"InvalidTemplateDeployment\",\n  
-    | \"message\": \"The template deployment '8b1a99f1-e35e-44be-a8ac-0f82009b7149' is not valid according to the validation procedure. 
-    | The tracking id is 'xyz'. See inner errors for details.\",\n  \"details\": 
-    | [\n   {\n    \"code\": \"QuotaExceeded\",\n    \"message\": \"Operation could not be completed as it results in exceeding approved standardDv5Family Cores quota. 
-    | Additional details - Deployment Model: Resource Manager, Location: westeurope, Current Limit: 0, Current Usage: 0, 
-    | Additional Required: 4, (Minimum) New Limit Required: 4. 
-    | Submit a request for Quota increase at https://<AZURE_LINK> by specifying parameters listed in the ‘Details’ section for deployment to succeed. 
+    | Error: creating Node Pool: (Agent Pool Name "taskworkers" / Managed Cluster Name "metaflow-kubernetes-default" / Resource Group "rg-k8s-metaflow-default"):
+    | containerservice.AgentPoolsClient#CreateOrUpdate: Failure sending request: StatusCode=400 -- Original Error: Code="PreconditionFailed"
+    | Message="Provisioning of resource(s) for Agent Pool taskworkers failed. Error: {\n  \"code\": \"InvalidTemplateDeployment\",\n
+    | \"message\": \"The template deployment '8b1a99f1-e35e-44be-a8ac-0f82009b7149' is not valid according to the validation procedure.
+    | The tracking id is 'xyz'. See inner errors for details.\",\n  \"details\":
+    | [\n   {\n    \"code\": \"QuotaExceeded\",\n    \"message\": \"Operation could not be completed as it results in exceeding approved standardDv5Family Cores quota.
+    | Additional details - Deployment Model: Resource Manager, Location: westeurope, Current Limit: 0, Current Usage: 0,
+    | Additional Required: 4, (Minimum) New Limit Required: 4.
+    | Submit a request for Quota increase at https://<AZURE_LINK> by specifying parameters listed in the ‘Details’ section for deployment to succeed.
     | Please read more about quota limits at https://docs.microsoft.com/en-us/azure/azure-supportability/per-vm-quota-requests\"\n   }\n  ]\n }"
 
 Then, apply the `services` module (deploys Metaflow services to AKS)

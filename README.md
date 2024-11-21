@@ -1,5 +1,5 @@
-[![](https://img.shields.io/badge/slack-@outerbounds-purple.svg?logo=slack )](http://slack.outerbounds.co/) 
- 
+[![](https://img.shields.io/badge/slack-@outerbounds-purple.svg?logo=slack )](http://slack.outerbounds.co/)
+
 # ⚒️ Metaflow Admin Tools
 
 This repository contains various configuration files, tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow documentation](https://docs.metaflow.org) for more information about Metaflow architecture. Top level folders are structured as follows:
@@ -29,6 +29,10 @@ are used to drive end-to-end CI coverage internally at Outerbounds.  They live u
 
 ## Utility scripts (/scripts)
 Scripts that make life easier either deploying or using your new Metaflow stacks.
+
+## Precommit Hooks
+
+We use [pre-commit](https://pre-commit.com/#install) to do some basic linting and other checks on this repo. You can see all linting steps in [the precommit config](.pre-commit-config.yaml).
 
 # Questions?
 Talk to us on [Slack](http://http://slack.outerbounds.co/).

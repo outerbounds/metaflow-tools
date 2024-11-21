@@ -1,8 +1,8 @@
 resource "kubernetes_deployment" "metaflow-ui-static-service" {
   wait_for_rollout = false
   metadata {
-    name = "metaflow-ui-static-service"
-    namespace= "default"
+    name      = "metaflow-ui-static-service"
+    namespace = "default"
   }
   spec {
     selector {
@@ -13,7 +13,7 @@ resource "kubernetes_deployment" "metaflow-ui-static-service" {
     template {
       metadata {
         labels = {
-          app  = "metaflow-ui-static-service"
+          app = "metaflow-ui-static-service"
         }
       }
       spec {
@@ -22,8 +22,8 @@ resource "kubernetes_deployment" "metaflow-ui-static-service" {
           name  = "metaflow-ui-static-service"
           port {
             container_port = 3000
-            name =  "http"
-            protocol = "TCP"
+            name           = "http"
+            protocol       = "TCP"
           }
           liveness_probe {
             http_get {
@@ -46,8 +46,8 @@ resource "kubernetes_deployment" "metaflow-ui-static-service" {
           # How to reach UI backend from **outside** cluster
           # It is the *UI backend* (suboptimal naming)
           env {
-            name = "METAFLOW_SERVICE"
-            value=  "http://localhost:8083/api"
+            name  = "METAFLOW_SERVICE"
+            value = "http://localhost:8083/api"
           }
         }
       }
@@ -57,8 +57,8 @@ resource "kubernetes_deployment" "metaflow-ui-static-service" {
 
 resource "kubernetes_service" "metaflow-ui-static-service" {
   metadata {
-    name = "metaflow-ui-static-service"
-    namespace= "default"
+    name      = "metaflow-ui-static-service"
+    namespace = "default"
   }
   spec {
     type = "ClusterIP"
@@ -68,7 +68,7 @@ resource "kubernetes_service" "metaflow-ui-static-service" {
     port {
       port        = 3000
       target_port = 3000
-      protocol = "TCP"
+      protocol    = "TCP"
     }
   }
 }
