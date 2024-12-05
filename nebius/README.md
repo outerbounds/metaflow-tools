@@ -5,3 +5,10 @@ This folder houses resources to help you get started with running Metaflow on Ne
 ## terraform/
 
 These sample templates bring up a minimal Metaflow services stack on Nebius.
+
+## TODO
+
+[ ] add support airflow
+[ ] add support of separate networks
+[ ] add to TF getting S3 keys
+[ ] check GPU
