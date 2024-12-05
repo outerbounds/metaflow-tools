@@ -12,3 +12,4 @@ These sample templates bring up a minimal Metaflow services stack on Nebius.
 [ ] add support of separate networks
 [ ] add to TF getting S3 keys
 [ ] check GPU
+[ ] Update main Readme.md
