@@ -49,6 +49,7 @@ provider "helm" {
 
 data "nebius_vpc_v1_subnet" "default" {
   parent_id = var.project_id
+  # TODO FIX
   name      = "default-subnet-4hhhxik2"
 }
 
