@@ -1,0 +1,61 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "metaflow-ui.fullname" . -}}
+{{- $svcPort := .Values.uiBackend.service.port -}}
+{{- $fullNameStatic := include "metaflow-ui.fullname-static" . -}}
+{{- $svcPortStatic := .Values.uiStatic.service.port -}}
+{{- $isK8sVersionAtLeast118 := semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $isK8sVersionAtLeast119 := semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+
+{{- if and .Values.ingress.className (not $isK8sVersionAtLeast118) }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+    {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className }}
+  {{- end }}
+{{- end }}
+
+apiVersion: {{ if $isK8sVersionAtLeast119 }}networking.k8s.io/v1{{ else if $isK8sVersionAtLeast118 }}networking.k8s.io/v1beta1{{ else }}extensions/v1beta1{{ end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "metaflow-ui.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if and .Values.ingress.className $isK8sVersionAtLeast118 }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- range .Values.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range $path, $service := dict "/api" $fullName "/static" $fullNameStatic "/" $fullNameStatic }}
+          - path: {{ $path | quote }}
+            {{- if $isK8sVersionAtLeast118 }}
+            pathType: Prefix
+            {{- end }}
+            backend:
+              {{- if $isK8sVersionAtLeast119 }}
+              service:
+                name: {{ $service }}
+                port:
+                  number: {{ if eq $service $fullName }}{{ $svcPort }}{{ else }}{{ $svcPortStatic }}{{ end }}
+              {{- else }}
+              serviceName: {{ $service }}
+              servicePort: {{ if eq $service $fullName }}{{ $svcPort }}{{ else }}{{ $svcPortStatic }}{{ end }}
+              {{- end }}
+          {{- end }}
+    {{- end }}
+{{- end }}

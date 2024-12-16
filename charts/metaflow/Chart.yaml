@@ -1,0 +1,28 @@
+apiVersion: v2
+appVersion: v2.4.13
+dependencies:
+  - name: metaflow-service
+    repository: ""
+    version: 0.2.0
+    condition: metaflow-service.enabled
+  - name: metaflow-ui
+    repository: ""
+    version: 0.3.0
+    condition: metaflow-ui.enabled
+  - name: postgresql
+    repository: https://charts.bitnami.com/bitnami
+    version: "^14"
+    condition: postgresql.enabled
+description: Machine Learning platform
+home: https://metaflow.org
+keywords:
+  - mlops
+  - metaflow
+  - metadata service
+  - metaflow ui
+name: metaflow
+sources:
+  - https://github.com/Netflix/metaflow
+  - https://github.com/outerbounds/metaflow-tools
+type: application
+version: 0.0.2

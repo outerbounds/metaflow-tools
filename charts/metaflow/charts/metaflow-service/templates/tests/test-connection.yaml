@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "metaflow-service.fullname" . }}-test-connection"
+  labels:
+    {{- include "metaflow-service.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "0"
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "metaflow-service.fullname" . }}:{{ .Values.service.port }}']
+      resources:
+        requests:
+          memory: "64Mi"
+          cpu: "50m"
+        limits:
+          memory: "128Mi"
+          cpu: "100m"
+  restartPolicy: Never
+  serviceAccountName: default
+  activeDeadlineSeconds: 60
