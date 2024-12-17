@@ -5,8 +5,6 @@ metadata:
   namespace: {{ .Values.namespace | default "default" }}
   labels:
     {{- include "metaflow-ui.labelsStatic" . | nindent 4 }}
-  annotations:
-    {{- include "metaflow-ui.annotationsStatic" . | nindent 4 }}
 spec:
   type: {{ .Values.uiStatic.service.type }}
   loadBalancerIP: {{ .Values.uiStatic.service.loadBalancerIP | default "" }}
