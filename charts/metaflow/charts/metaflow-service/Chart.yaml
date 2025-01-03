@@ -14,6 +14,6 @@ keywords:
   - metadata
   - service
 sources:
-  - https://github.com/Netflix/metaflow
+  - https://github.com/Netflix/metaflow-service
   - https://github.com/outerbounds/metaflow-tools
 icon: https://metaflow.org/images/metaflow.svg
