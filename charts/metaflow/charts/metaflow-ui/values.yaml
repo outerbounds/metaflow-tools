@@ -75,8 +75,8 @@ uiStatic:
     # - name: var_name
     #   value: "var_value"
 
-  # This default assumes the backend service is running in the same 
-  metaflowUIBackendURL: "http://localhost:8083/api/"
+  # This default assumes the backend service is running in the same
+  metaflowUIBackendURL: ""
 
   service:
     type: ClusterIP

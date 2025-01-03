@@ -45,7 +45,7 @@ spec:
               port: http
           env:
             - name: METAFLOW_SERVICE
-              value: {{ .Values.uiStatic.metaflowUIBackendURL | quote }}
+              value: {{ include "metaflow-ui.staticUIBackendURL" . | quote }}
             {{- range .Values.env }}
             - name: {{ .name | quote }}
               value: {{ .value | quote }}
