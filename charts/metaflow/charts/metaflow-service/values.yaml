@@ -15,9 +15,9 @@ dbMigrations:
   onlyIfDbEmpty: true
   runOnStart: true
 
-env: []
-  # - name: VAR_NAME
-  #   value: "value"
+env:
+  - name: MF_METADATA_DB_SSL_MODE
+    value: prefer
 
 envFrom: []
 # - configMapRef:

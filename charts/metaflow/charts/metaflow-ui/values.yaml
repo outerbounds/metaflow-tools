@@ -6,10 +6,12 @@ uiBackend:
     tag: ""
 
   podAnnotations: {}
-  env: []
+  env:
     # Additional environment variables for metaflow-ui static deployment. Example config:
     # - name: METAFLOW_SERVICE
     #   value: "http://localhost:8083/api/"
+    - name: MF_METADATA_DB_SSL_MODE
+      value: prefer
 
   envFrom: []
     # Example of loading environment variables from a ConfigMap and Secret:
