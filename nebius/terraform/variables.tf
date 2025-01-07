@@ -20,7 +20,7 @@ locals {
   metaflow_db_port = 5432
 
   # Airflow Related Options
-  airflow_version = "2.3.3"
+  airflow_version = "2.10.4"
   airflow_frenet_secret = "myverysecretvalue"
 
   # Nebius constants
