@@ -1,6 +1,0 @@
-apiVersion: v2
-appVersion: v2.3.6
-description: A Helm chart to deploy Metadata Service for Metaflow
-name: metaflow-service
-type: application
-version: 0.2.0

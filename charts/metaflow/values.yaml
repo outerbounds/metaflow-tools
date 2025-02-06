@@ -1,0 +1,34 @@
+metaflow-service:
+  metadatadb:
+    # WARNING: Default credentials - MUST be changed in production environments
+    password: metaflow  # Change this in production using secrets management
+    name: metaflow
+    user: metaflow
+
+metaflow-ui:
+  # SECURITY NOTICE:
+  # The following credentials are default values for development only.
+  # For production deployments:
+  # 1. Use Kubernetes secrets
+  # 2. Use environment variables
+  # 3. Use external secrets management (e.g., HashiCorp Vault)
+  uiBackend:
+    metadatadb:
+      password: metaflow  # Change this in production using secrets management
+      name: metaflow
+      user: metaflow
+
+  ingress:
+    enabled: true
+    hosts:
+      - host: localhost  # Change this to your production domain
+
+postgresql:
+  # WARNING: These are development defaults
+  # For production environments:
+  # - Use strong passwords
+  # - Consider using external managed database
+  enabled: true
+  postgresqlPassword: metaflow  # Change this in production using secrets management
+  postgresqlDatabase: metaflow
+  postgresqlUsername: metaflow

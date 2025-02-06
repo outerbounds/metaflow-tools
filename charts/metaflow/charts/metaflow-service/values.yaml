@@ -1,0 +1,130 @@
+# Default values for metaflow-service.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+affinity: {}
+
+autoscaling:
+  enabled: false
+  maxReplicas: 100
+  minReplicas: 1
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+dbMigrations:
+  onlyIfDbEmpty: true
+  runOnStart: true
+
+env:
+  - name: MF_METADATA_DB_SSL_MODE
+    value: prefer
+
+envFrom: []
+# - configMapRef:
+#     name: example-configmap
+# - secretRef:
+#     name: example-secret
+
+image:
+  pullPolicy: IfNotPresent
+  repository: public.ecr.aws/outerbounds/metaflow_metadata_service
+  tag: ""
+
+imagePullSecrets: []
+# - name: myRegistryKeySecret
+
+ingress:
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  className: ""
+  enabled: false
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+livenessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /ping
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+
+metadatadb:
+  host: ""
+  name: "metaflow"
+  password: ""
+  port: 5432
+  schema: ""
+  user: "metaflow"
+
+fullnameOverride: ""
+nameOverride: ""
+
+# This section allows you to specify a node selector for the Kubernetes pods.
+# Node selectors are key-value pairs used to constrain a pod to only be able to run on particular nodes.
+# Example usage:
+# nodeSelector:
+#   disktype: ssd
+nodeSelector: {}
+
+podAnnotations: {}
+  # example-key: example-value
+
+podSecurityContext: {}
+  # fsGroup: 2000
+  # runAsUser: 1000
+  # runAsGroup: 3000
+
+readinessProbe:
+  failureThreshold: 3
+  httpGet:
+    path: /ping
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  successThreshold: 1
+  timeoutSeconds: 5
+
+replicaCount: 1
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 200m
+  #   memory: 256Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  annotations: {}
+  port: 8080
+  type: ClusterIP
+
+serviceAccount:
+  annotations: {}
+  create: true
+  name: ""
+
+tolerations: []

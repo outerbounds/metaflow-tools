@@ -1,0 +1,86 @@
+# Patterns to ignore when building packages.
+# This supports shell glob matching, relative path matching, and
+# negation (prefixed with !). Only one pattern per line.
+
+# macOS specific files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Common VCS dirs
+.git/
+.gitignore
+.bzr/
+.bzrignore
+.hg/
+.hgignore
+.svn/
+.svnignore
+
+# Common backup files
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+*.old
+*.backup
+
+# Various IDEs
+.project
+.idea/
+*.tmproj
+.vscode/
+*.code-workspace
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python specific
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Logs
+*.log
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+
+# Compiled files
+*.o
+*.obj
+*.dll
+*.class
+*.exe
+*.so
+*.dylib
+*.out
+*.app
+*.pdb
+*.lib
+*.a
+*.la
+*.lo
+*.jar
+*.war
+*.ear
+*.pyc
+*.pyo
+*.pyd
+*.whl

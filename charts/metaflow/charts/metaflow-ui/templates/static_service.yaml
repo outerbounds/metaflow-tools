@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ include "metaflow-ui.fullname-static" . }}"
+  namespace: {{ .Values.namespace | default "default" }}
+  labels:
+    {{- include "metaflow-ui.labelsStatic" . | nindent 4 }}
+spec:
+  type: {{ .Values.uiStatic.service.type }}
+  loadBalancerIP: {{ .Values.uiStatic.service.loadBalancerIP | default "" }}
+  ports:
+    - port: {{ .Values.uiStatic.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "metaflow-ui.selectorLabelsStatic" . | nindent 4 }}

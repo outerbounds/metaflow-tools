@@ -1,0 +1,152 @@
+uiBackend:
+  image:
+    name: public.ecr.aws/outerbounds/metaflow_metadata_service
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  podAnnotations: {}
+  env:
+    # Additional environment variables for metaflow-ui static deployment. Example config:
+    # - name: METAFLOW_SERVICE
+    #   value: "http://localhost:8083/api/"
+    - name: MF_METADATA_DB_SSL_MODE
+      value: prefer
+
+  envFrom: []
+    # Example of loading environment variables from a ConfigMap and Secret:
+    # - configMapRef:
+    #     name: my-config-map
+    # - secretRef:
+    #     name: my-secret
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 200m
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  service:
+    type: ClusterIP
+    port: 8083
+
+  replicaCount: 1
+
+  metaflowDatastoreSysRootS3: ""
+    # The root S3 bucket prefix that will be used by metaflow
+
+  metaflowServiceURL: "http://localhost:8083/api/metadata"
+    # The metaflow metadata service URL
+
+  metaflowS3EndpointURL: ""
+    # This should be set only when using an S3 compatible object storage like minio
+
+  metadatadb:
+    port: 5432
+    password: ""
+    host: ""
+    user: ""
+
+uiStatic:
+  image:
+    name: public.ecr.aws/outerbounds/metaflow_ui
+    pullPolicy: IfNotPresent
+    tag: "v1.3.3"
+
+  podAnnotations: {}
+
+  resources: {}
+    # Default resources are not specified to allow flexibility and compatibility
+    # with various environments, including those with limited resources like Minikube.
+    # To specify resources, uncomment and adjust the following lines:
+    # limits:
+    #   cpu: 200m
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  env: []
+    # Environment variables for metaflow-ui static deployment. Example config:
+    # - name: var_name
+    #   value: "var_value"
+
+  # This default assumes the backend service is running in the same
+  metaflowUIBackendURL: ""
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  replicaCount: 1
+
+# values common to both the UI static and backend deployments
+imagePullSecrets: []
+podSecurityContext: {}
+  # fsGroup: 2000
+  # runAsUser: 1000
+  # runAsGroup: 3000
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+nodeSelector: {}
+  # Example node selector to schedule pods on specific nodes:
+  # kubernetes.io/os: linux
+  # node-type: worker
+
+tolerations: []
+  # Example tolerations to allow scheduling on tainted nodes:
+  # - key: "dedicated"
+  #   operator: "Equal"
+  #   value: "analytics"
+  #   effect: "NoSchedule"
+
+affinity: {}
+  # Example pod affinity to co-locate related pods:
+  # podAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #   - labelSelector:
+  #       matchExpressions:
+  #       - key: app
+  #         operator: In
+  #         values:
+  #         - metaflow-ui
+  #     topologyKey: "kubernetes.io/hostname"
+
+# name overrides
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+  # Annotations to add to the service account
+  annotations: {}
+    # Example annotation for an IRSA role ARN:
+    # eks.amazonaws.com/role-arn: arn:aws:iam::<account-id>:role/<role-name>
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /api
+          pathType: ImplementationSpecific
+  tls: []
