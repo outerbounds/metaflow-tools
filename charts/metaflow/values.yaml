@@ -29,6 +29,7 @@ postgresql:
   # - Use strong passwords
   # - Consider using external managed database
   enabled: true
-  postgresqlPassword: metaflow  # Change this in production using secrets management
-  postgresqlDatabase: metaflow
-  postgresqlUsername: metaflow
+  auth:
+    password: metaflow  # Change this in production using secrets management
+    database: metaflow
+    username: metaflow
