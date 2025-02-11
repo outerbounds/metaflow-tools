@@ -11,7 +11,7 @@ dependencies:
     condition: metaflow-ui.enabled
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
-    version: "^14.3.3"
+    version: "^14"
     condition: postgresql.enabled
 description: Machine Learning platform
 home: https://metaflow.org
