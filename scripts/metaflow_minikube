@@ -20,7 +20,7 @@ MODE="$1"
 setup_helm_repos() {
   echo "Setting up Helm repositories..."
   repos=(
-    "minio=https://charts.min.io/"
+    "minio-s3=https://charts.min.io/"
     "bitnami=https://charts.bitnami.com/bitnami"
     "metaflow=https://outerbounds.github.io/metaflow-tools"
     "argo=https://argoproj.github.io/argo-helm"
@@ -48,7 +48,7 @@ check_dependencies() {
   missing=false
 
   # Check required commands
-  for cmd in minikube kubectl helm ngrok; do
+  for cmd in minikube kubectl helm; do
     if ! command -v "$cmd" >/dev/null 2>&1; then
       echo "✖ ERROR: $cmd is not installed or not in PATH."
       missing=true
@@ -90,11 +90,12 @@ start_minikube() {
 # Step 3: Deploy MinIO via Helm.
 deploy_minio() {
   echo "Step 3: Deploying MinIO..."
-  helm upgrade --install minio-s3 minio/minio \
+  helm upgrade --install minio-s3 minio-s3/minio \
     --set resources.requests.memory=512Mi \
     --set replicas=1 --set persistence.enabled=false \
     --set mode=standalone \
-    --set rootUser=rootuser,rootPassword=rootpass123 \
+    --set rootUser=rootuser \
+    --set rootPassword=rootpass123 \
     --set buckets[0].name=metaflow-test,buckets[0].policy=none,buckets[0].purge=false
 }
 
@@ -111,6 +112,7 @@ type: Opaque
 stringData:
   AWS_ACCESS_KEY_ID: rootuser
   AWS_SECRET_ACCESS_KEY: rootpass123
+  AWS_ENDPOINT_URL_S3: http://minio-s3.default.svc.cluster.local:9000
 EOF
 )
 }
@@ -127,25 +129,13 @@ install_postgres() {
 # Step 7: Port-forward MinIO service.
 portforward_minio() {
   echo "Step 7: Port-forwarding MinIO on port 9000..."
+  echo "Waiting for MinIO pod to be ready..."
+  kubectl wait --for=condition=ready pod -l app=minio --timeout=300s
   kubectl port-forward svc/minio-s3 9000 > /tmp/minio-portforward.log 2>&1 &
   echo "MinIO port-forward running in the background (log: minio-portforward.log)."
 }
 
-# Step 8: Start ngrok tunnel (background) and save the tunnel URL.
-start_ngrok() {
-  echo "Step 8: Starting ngrok tunnel on port 9000..."
-  nohup ngrok http 9000 > /tmp/ngrok.log 2>&1 &
-  NGROK_PID=$!
-  echo "ngrok started with PID $NGROK_PID"
-  echo "Waiting for ngrok to initialize..."
-  sleep 8
-  NGROK_TUNNEL=$(curl --silent http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-  if [ -z "$NGROK_TUNNEL" ] || [ "$NGROK_TUNNEL" == "null" ]; then
-    echo "ERROR: Unable to retrieve ngrok tunnel URL. Ensure ngrok is running."
-    exit 1
-  fi
-  echo "ngrok tunnel is available at: $NGROK_TUNNEL"
-}
+
 
 # Step 9: Install Metaflow metadata service via Helm.
 install_metadata_service() {
@@ -371,14 +361,6 @@ EOF
 install_metaflow_ui() {
   echo "Step 14: Installing Metaflow UI..."
 
-  if [ -z "${NGROK_TUNNEL:-}" ]; then
-    echo "Retrieving NGROK_TUNNEL..."
-    NGROK_TUNNEL=$(curl --silent http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-  fi
-  if [ -z "$NGROK_TUNNEL" ] || [ "$NGROK_TUNNEL" == "null" ]; then
-    echo "ERROR: Unable to retrieve ngrok tunnel URL. Ensure ngrok is running."
-    exit 1
-  fi
 
   helm upgrade --install metaflow-ui metaflow/metaflow-ui \
     --timeout 15m0s \
@@ -390,7 +372,7 @@ uiBackend:
     name: metaflow
     password: metaflow
   metaflowDatastoreSysRootS3: s3://metaflow-test
-  metaflowS3EndpointURL: ${NGROK_TUNNEL}
+  metaflowS3EndpointURL: http://minio-s3.default.svc.cluster.local:9000
   env:
     - name: AWS_ACCESS_KEY_ID
       value: rootuser
@@ -429,20 +411,11 @@ portforward_metaflow_ui() {
 # Step 16: Create Metaflow configuration file.
 create_metaflow_config() {
   echo "Step 16: Creating Metaflow config file..."
-  if [ -z "${NGROK_TUNNEL:-}" ]; then
-    echo "Retrieving NGROK_TUNNEL..."
-    NGROK_TUNNEL=$(curl --silent http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-  fi
-  if [ -z "$NGROK_TUNNEL" ] || [ "$NGROK_TUNNEL" == "null" ]; then
-    echo "ERROR: NGROK_TUNNEL could not be determined."
-    exit 1
-  fi
   CONFIG_DIR="$HOME/.metaflowconfig"
   mkdir -p "$CONFIG_DIR"
   cat > "$CONFIG_DIR/config_minikube.json" <<EOF
 {
   "METAFLOW_DATASTORE_SYSROOT_S3": "s3://metaflow-test",
-  "METAFLOW_S3_ENDPOINT_URL": "${NGROK_TUNNEL}",
   "METAFLOW_DEFAULT_DATASTORE": "s3",
   "METAFLOW_DEFAULT_METADATA": "service",
   "METAFLOW_SERVICE_URL": "http://localhost:8080",
@@ -476,7 +449,8 @@ Copy and run the following command in your terminal to set up your environment:
 export METAFLOW_PROFILE=minikube && \
 export AWS_ACCESS_KEY_ID=rootuser && \
 export AWS_SECRET_ACCESS_KEY=rootpass123 && \
-echo "You are good to start using metaflow!"
+export AWS_ENDPOINT_URL_S3=http://localhost:9000 && \
+echo 'You are good to start using metaflow!'
 
 ============================================================
 EOF
@@ -508,8 +482,6 @@ case "$MODE" in
     deploy_minio
     create_minio_secret
     install_postgres
-    portforward_minio
-    start_ngrok
     install_metadata_service
     install_argo
     install_argo_events
@@ -517,6 +489,7 @@ case "$MODE" in
     install_metaflow_ui
     create_metaflow_config
     set_metaflow_profile
+    portforward_minio
     portforward_metadata
     portforward_metaflow_ui
     print_ready_message
