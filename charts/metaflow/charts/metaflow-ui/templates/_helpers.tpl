@@ -56,7 +56,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{- define "metaflow-ui.labelsStatic" -}}
-{{ include "metaflow-ui.labels" . }}
 {{ include "metaflow-ui.selectorLabelsStatic" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
