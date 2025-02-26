@@ -38,6 +38,7 @@ uiBackend:
 
   replicaCount: 1
 
+  defaultMetastore: "s3"
   metaflowDatastoreSysRootS3: ""
     # The root S3 bucket prefix that will be used by metaflow
 
