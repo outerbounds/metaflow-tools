@@ -23,6 +23,9 @@ locals {
   airflow_version = "2.10.4"
   airflow_frenet_secret = "myverysecretvalue"
 
+  # Argo Related Options
+  argo_version = "v3.6.4"
+
   # Nebius constants
   nebius_s3_endpoint = "https://storage.eu-north1.nebius.cloud"
 }

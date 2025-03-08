@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "argo" {
 
 locals {
   is_windows = substr(pathexpand("~"), 0, 1) == "/" ? false : true
-  _kubectl_cmd = "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/latest/download/quick-start-postgres.yaml --context=nebius-mk8s-${var.kubernetes_cluster_name}"
+  _kubectl_cmd = "kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/download/${var.argo_version}/quick-start-postgres.yaml --context=nebius-mk8s-${var.kubernetes_cluster_name}"
 }
 
 # Yes local-exec is unfortunate.

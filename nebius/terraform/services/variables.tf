@@ -49,6 +49,9 @@ variable "metaflow_kubernetes_secret_name"{
   type = string
 }
 
+variable "argo_version" {
+  type = string
+}
 variable "airflow_version" {
   type = string
 }
@@ -59,6 +62,10 @@ variable "airflow_frenet_secret" {
 
 variable "deploy_argo" {
   type = bool
+}
+
+variable "argo_version" {
+  type = string
 }
 
 variable "deploy_airflow" {
