@@ -7,7 +7,7 @@ resource "nebius_mk8s_v1_cluster" "metaflow_kubernetes" {
         public_endpoint = {}
     }
   }
-  // TODO fix it 
+  # TODO Switch to kube_config when it will be available
   provisioner "local-exec" {
     command = "nebius mk8s cluster get-credentials --id ${self.id} --external --force"
   }

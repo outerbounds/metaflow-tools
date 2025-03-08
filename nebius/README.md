@@ -8,6 +8,5 @@ These sample templates bring up a minimal Metaflow services stack on Nebius.
 
 ## TODOs
 
-- [ ] add support of separate networks
-- [ ] add to TF getting S3 keys
-- [ ] Update main Readme.md
+- [ ] Add support for separate networks when it becomes available
+- [ ] Add functionality to Terraform for retrieving S3 keys when it becomes available

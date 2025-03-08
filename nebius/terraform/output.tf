@@ -53,6 +53,8 @@ option 2 - this script manages the same port-forwards for you (and prevents time
 
 $ python3 forward_metaflow_ports.py [--include-argo] [--include-airflow]
 
+Now you can access Metaflow UI at http://localhost:3000/ and Argo at http://localhost:2746/.
+
 ADVANCED TOPICS
 ---------------
 

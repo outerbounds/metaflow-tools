@@ -24,6 +24,7 @@ Before you do anything, create a TF vars file `FILE.tfvars` (`FILE` could be som
 ```text
 tenant_id = "" # you can get from your console
 project_id = "" # you can get from your console
+vpc_subnet_id = "" # you can get from your console
 ```
 
 This is used to help generate unique resource names for:
@@ -58,6 +59,19 @@ Then run:
 terraform apply -target="module.services" -var-file=FILE.tfvars
 ```
 
+## Destroying
+
+To destroy infra run:
+
+```bash
+terraform destroy -target="module.infra" -var-file=FILE.tfvars
+```
+
+To destroy services run:
+
+```bash
+terraform destroy -target="module.services" -var-file=FILE.tfvars
+```
 
 ### Airflow
 
