@@ -7,7 +7,7 @@ resource "nebius_msp_postgresql_v1alpha1_cluster" "metaflow_database_server" {
     user_password = var.metaflow_database_server_admin_password
   }
   config = {
-    resources = {
+    template = {
       disk = {
         size_gibibytes = 32
         type = "nebius-network-ssd"

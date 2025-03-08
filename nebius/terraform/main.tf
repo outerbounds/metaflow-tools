@@ -5,7 +5,7 @@ terraform {
       version = ">= 2.12.1"
     }
     nebius = {
-      source  = "terraform-provider-nebius.storage.ai.nebius.cloud/nebius/nebius"
+      source  = "terraform-provider.storage.eu-north1.nebius.cloud/nebius/nebius"
       version = ">= 0.3.10"
     }
     helm = {
@@ -48,10 +48,9 @@ provider "helm" {
 }
 
 data "nebius_vpc_v1_subnet" "default" {
-  parent_id = var.project_id
-  # TODO FIX
-  name      = "default-subnet-4hhhxik2"
+  id = var.vpc_subnet_id
 }
+
 
 data "nebius_vpc_v1_network" "default" {
   parent_id = var.project_id

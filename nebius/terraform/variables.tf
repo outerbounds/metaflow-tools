@@ -53,6 +53,11 @@ variable "iam_token" {
   type        = string
 }
 
+variable "vpc_subnet_id" {
+  description = "The ID of the subnet to deploy the cluster into."
+  type        = string
+}
+
 variable "aws_access_key_id" {
   description = "AWS access key id from console"
   type        = string

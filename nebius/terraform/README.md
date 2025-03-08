@@ -2,7 +2,7 @@
 
 ## What does it do?
 
-It provisions all necessary Nebius resources. Main resources are:
+It provisions all necessary Nebius resources. The main resources are:
 
 * Nebius S3
 * Nebius Mk8s
@@ -13,7 +13,7 @@ It will also deploy Metaflow services onto the Mk8s cluster above.
 
 * Install [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 * Install [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl).
-* Install [nebius](https://docs.nebius.com/cli/quickstart/) CLI and setup it.
+* Install [nebius](https://docs.nebius.com/cli/quickstart/) CLI and set it up.
 
 ## Usage
 
@@ -42,10 +42,11 @@ Next run to obtain Iam Nebius token
 Next, apply the `infra` module (creates Nebius cloud resources only).
 
 ```bash
+terraform init  
 terraform apply -target="module.infra" -var-file=FILE.tfvars
 ```
 
-Next, add Service Account to `editors` group and add values to `FILE.tfvars`. You can get values from console from SA page
+Next, add the Service Account to the `editors` group and add values to `FILE.tfvars`. You can get values from the console from the Service Account page:
 
 ```txt
 aws_access_key_id = ""
