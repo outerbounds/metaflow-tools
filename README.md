@@ -18,10 +18,10 @@ This stack uses AWS Batch for compute and AWS Step Functions for orchestration.
 This is the quickest way to spin up a fully functional Metaflow stack on Azure. See details under [azure/terraform](./azure/terraform) in this repository.
 This stack uses Kubernetes (AKS) for compute and Argo Workflows for orchestration.
 
-## Metaflow on Nebius (/nebius)
+## Metaflow on Nebius AI Cloud (/nebius)
 ### Sample Terraform templates for Nebius AI Cloud
-Another quickest way to spin up a fully functional Metaflow stack on Nebius. See details under [nebius/terraform](./nebius/terraform) in this repository.
-This stack uses Kubernetes (Managed Service for Kubernetes) for compute and Argo Workflows for orchestration.
+This is another quickest way to spin up a fully functional Metaflow stack on Nebius. See details under [nebius/terraform](./nebius/terraform) in this repository.
+This stack uses Kubernetes (Managed Service for Kubernetes in Nebius AI Cloud) for compute and Argo Workflows for orchestration.
 
 ## Metaflow services on Kubernetes (/k8s)
 ### Helm Charts (alpha)

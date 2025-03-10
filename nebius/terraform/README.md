@@ -1,112 +1,122 @@
-# A minimal viable Metaflow-on-Nebius stack
+# Metaflow on Nebius AI Cloud: Minimal viable stack
 
 ## What does it do?
 
-It provisions all necessary Nebius AI Cloud resources. The main resources are:
+It provisions all necessary Nebius AI Cloud resources:
 
-* Nebius Object Storage
-* Nebius Managed Service for Kubernetes
+* Managed Service for Kubernetes cluster
+* Object Storage bucket
+* Managed Service for PostgreSQL cluster
 
-It will also deploy Metaflow services onto the Mk8s cluster above.
+After that, it deploys Metaflow services on the Managed Kubernetes cluster.
 
 ## Prerequisites
 
-* Install [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
+* Install [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli).
 * Install [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl).
-* Install [nebius](https://docs.nebius.com/cli/quickstart/) CLI and set it up.
+* Install and configure the [Nebius AI Cloud CLI](https://docs.nebius.com/cli/quickstart/).
+
+After installing the prerequisite tools, run `source ./.envrc.zsh` if you run bash, or `source ./.envrc.zsh` if you prefer zsh.
 
 ## Usage
 
 The templates are organized into two modules, `infra` and `services`.
 
-Before you do anything, create a TF vars file `FILE.tfvars` (`FILE` could be something else), with this content.
+1. Create `terraform.tfvars` with Terraform variables:
 
-```text
-org_prefix = "yourorg"
-```
+   ```text
+   org_prefix = "yourorg"
+   ```
+   
+   This is used to help generate unique names for the following resources:
+   
+   * Object Storage bucket
+   * Managed PostgreSQL cluster
+   
+   You can also add tenant_id, project_id and vpc_subnet_id to `terraform.tfvars`
 
-This is used to help generate unique resource names for:
+   ```text
+   tenant_id = "tenant-***"
+   project_id = "project-***"
+   vpc_subnet_id = "vpcsubnet-***"
+   ```
 
-* Managed Service for PostgreSQL server name
-* Nebius Object Storage storage account name
+   * To get the tenant and project IDs, open the project menu at the top of the [web console](https://console.eu.nebius.com) and click **︙** → **Copy tenant ID** next to the tenant name and **︙** → **Copy project ID** next to the project name.
+   * To get the subnet ID, in the web console, go to [Network](https://console.eu.nebius.com/network) and click **︙** → **Copy subnet ID** next to the subnet name.
 
-Optinaly you can add tenant_id, project_id and vpc_subnet_id to `FILE.tfvars`.
+1. Apply the `infra` module that creates the Nebius AI Cloud resources:
 
-```text
-tenant_id = "" # you can get from your console
-project_id = "" # you can get from your console
-vpc_subnet_id = "" # you can get from your console
-```
+   ```bash
+   terraform init  
+   terraform apply -target="module.infra" -var-file=terraform.tfvars
+   ```
 
+1. Set up authentication and authorization for the service account created with `infra`: 
+   
+   1. In the web console, go to [Access → Service accounts](https://console.eu.nebius.com/iam/service-accounts). 
+   1. Find the service account whose name starts with `stmetaflow` and click on it.
+   1. Under the service account name, click **Add to group**.
+   1. Add the account to the `editors` group and click **Close**.
+   1. Click **Create access key**.
+   1. Copy the key ID and the secret key and add them to `terraform.tfvars`:
 
+      ```txt
+      aws_access_key_id = "" # Key ID
+      aws_secret_access_key = "" Secret key
+      ```
 
-Note: these resources must be globally unique across all of Nebius.
+1. Apply the `services` module:
 
-Run `source ./.envrc.sh` if you run bash, or `source ./.envrc.zsh` if you prefer zsh.
-
-Next, apply the `infra` module (creates Nebius AI cloud resources only).
-
-```bash
-terraform init  
-terraform apply -target="module.infra" -var-file=FILE.tfvars
-```
-
-Next, add the Service Account to the `editors` group and add values to `FILE.tfvars`. You can get values from the console from the Service Account page:
-
-```txt
-aws_access_key_id = ""
-aws_secret_access_key=""
-```
-
-Then run:
-
-```bash
-terraform apply -target="module.services" -var-file=FILE.tfvars
-```
-
-## Destroying
-
-To destroy infra run:
-
-```bash
-terraform destroy -target="module.infra" -var-file=FILE.tfvars
-```
-
-To destroy services run:
-
-```bash
-terraform destroy -target="module.services" -var-file=FILE.tfvars
-```
+   ```bash
+   terraform apply -target="module.services" -var-file=terraform.tfvars
+   ```
 
 ### Airflow
 
-**This is quickstart template only, not recommended for real production deployments**
+**Note:** This template only provides a quick start for testing purposes. We do not recommend it for real production deployments.
 
-If `deploy_airflow` is set to true, then the `services` module will deploy Airflow via a [helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html) into the kubernetes cluster (the one deployed by the `infra` module). 
+By default, this Terraform template does not deploy Airflow. To deploy it, set the `deploy_airflow` variable to `true` in `terraform.tfvars`:
 
-The terraform template deploys Airflow configured with a `LocalExecutor`. Metaflow can work with any Airflow executor. This template deploys the `LocalExecutor` for simplicity.
+```text
+deploy_airflow = true
+```
 
-After you have changed the value of `deploy_airflow`, reapply terraform for both [infra and services](#usage).
+If `deploy_airflow` is set to `true`, the `services` module will deploy Airflow on the Managed Kubernetes cluster deployed by the `infra` module. It uses the [official Helm chart](https://airflow.apache.org/docs/helm-chart/stable/index.html).
 
-#### Shipping Metaflow compiled DAGs to Airflow
-Airflow expects Python files with Airflow DAGS present in the [dags_folder](https://airflow.apache.org/docs/apache-airflow/2.2.0/configurations-ref.html#dags-folder). By default this terraform template uses the [defaults](https://airflow.apache.org/docs/helm-chart/stable/parameters-ref.html#airflow) set in the Airflow helm chart which is `{AIRFLOW_HOME}/dags` (`/opt/airflow/dags`).
+The Terraform template deploys Airflow configured with a `LocalExecutor` simplicity. Metaflow can work with any Airflow executor.
 
-The metaflow-tools repository also ships a [airflow_dag_upload.py](../../scripts/airflow_dag_upload.py) file that can help sync Airflow dag file generated by Metaflow to the Airflow scheduler _deployed by this template_. Under the hood [airflow_dag_upload.py](../../scripts/airflow_dag_upload.py) uses the `kubectl cp` command to copy files from local to the Airflow scheduler's container. Example of how to use the file:
+If you changed the value of `deploy_airflow` for an existing deployment, reapply both `infra` and `services` modules as described in the [instructions](#usage).
+
+#### Shipping Metaflow-compiled DAGs to Airflow
+Airflow expects Python files with Airflow DAGS present in the [dags_folder](https://airflow.apache.org/docs/apache-airflow/2.2.0/configurations-ref.html#dags-folder). By default, this Terraform template uses the [default path](https://airflow.apache.org/docs/helm-chart/stable/parameters-ref.html#airflow) set in the Airflow helm chart which is `{AIRFLOW_HOME}/dags` (`/opt/airflow/dags`).
+
+The metaflow-tools repository also ships an [airflow_dag_upload.py](../../scripts/airflow_dag_upload.py) file that can help sync Airflow DAG file generated by Metaflow to the Airflow scheduler _deployed by this template_. Under the hood [airflow_dag_upload.py](../../scripts/airflow_dag_upload.py) uses the `kubectl cp` command to copy files from local to the Airflow scheduler's container. Example of how to use the file:
 ```
 python airflow_dag_upload.py my-dag.py /opt/airflow/dags/my-dag.py
 ```
 
 ## (Advanced) Terraform state management
 
-Terraform manages the state of Nebius resources in [tfstate](https://www.terraform.io/language/state) files locally by default.
+By default, Terraform manages the state of the Nebius AI Cloud resources in local [tfstate](https://www.terraform.io/language/state) files.
 
 If you plan to maintain the minimal stack for any significant period of time, it is highly
-recommended that these state files be stored in cloud storage (e.g. Nebius Object Storage) instead.
+recommended to store the state files in a cloud storage instead, like Object Storage in Nebius AI Cloud. This is especially useful in the following cases:
 
-Some reasons include:
+* More than one person needs to manage the stack by using Terraform. Everyone should work off a single copy of the state file.
+* You want to mitigate the risk of data loss on your local disk.
 
-* More than one person needs to administer the stack (using terraform). Everyone should work off
-  a single copy of tfstate.
-* You wish to mitigate the risk of data-loss on your local disk.
+For more details, see the [Terraform documentation](https://www.terraform.io/language/settings/backends/configuration).
 
-For more details, see [Terraform docs](https://www.terraform.io/language/settings/backends/configuration).
+## Destroying
+
+To destroy `infra`, run:
+
+```bash
+terraform destroy -target="module.infra" -var-file=terraform.tfvars
+```
+
+To destroy `services`, run:
+
+```bash
+terraform destroy -target="module.services" -var-file=terraform.tfvars
+```
