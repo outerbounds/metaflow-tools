@@ -2,10 +2,10 @@
 
 ## What does it do?
 
-It provisions all necessary Nebius resources. The main resources are:
+It provisions all necessary Nebius AI Cloud resources. The main resources are:
 
-* Nebius S3
-* Nebius Mk8s
+* Nebius Object Storage
+* Nebius Managed Service for Kubernetes
 
 It will also deploy Metaflow services onto the Mk8s cluster above.
 
@@ -30,18 +30,18 @@ storage_container_name = "[YOUR USERNAME]-metaflow-storage-container" # A bucket
 
 This is used to help generate unique resource names for:
 
-* MPG server name
-* S3 storage account name
+* Managed Service for PostgreSQL server name
+* Nebius Object Storage storage account name
 
 Note: these resources must be globally unique across all of Nebius.
 
-Next run to obtain Iam Nebius token
+Next run to obtain IAM Nebius token
 
 ```bash
 . ./environment.sh
 ```
 
-Next, apply the `infra` module (creates Nebius cloud resources only).
+Next, apply the `infra` module (creates Nebius AI cloud resources only).
 
 ```bash
 terraform init  
@@ -56,6 +56,7 @@ aws_secret_access_key=""
 ```
 
 Then run:
+
 ```bash
 terraform apply -target="module.services" -var-file=FILE.tfvars
 ```
@@ -97,7 +98,7 @@ python airflow_dag_upload.py my-dag.py /opt/airflow/dags/my-dag.py
 Terraform manages the state of Nebius resources in [tfstate](https://www.terraform.io/language/state) files locally by default.
 
 If you plan to maintain the minimal stack for any significant period of time, it is highly
-recommended that these state files be stored in cloud storage (e.g. Nebius Storage) instead.
+recommended that these state files be stored in cloud storage (e.g. Nebius Object Storage) instead.
 
 Some reasons include:
 

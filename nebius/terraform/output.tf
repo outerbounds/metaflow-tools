@@ -12,8 +12,8 @@ There are three steps:
 
 STEP 1: Ensure you have sufficient access to these Nebius resources on your local workstation:
 
-- MK8S cluster ("${local.kubernetes_cluster_name}") ("Nebius mk8s")
-- Nebius Storage ("${var.storage_container_name}" in the storage account "${local.storage_account_name}")
+- Managed Service for Kubernetes cluster ("${local.kubernetes_cluster_name}") ("Nebius Managed Service for Kubernetes")
+- Nebius Object Storage ("${var.storage_container_name}" in the storage account "${local.storage_account_name}")
 
 You can use "nebius profile create" as a sufficiently capabable account. To see the credentials for the service principal
 (created by terraform) that is capable, run this:
