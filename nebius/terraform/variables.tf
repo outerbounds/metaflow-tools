@@ -43,12 +43,12 @@ variable "deploy_airflow" {
   default = false # Not supported
 }
 
-variable "tenant_id" {
+variable "iam_tenant_id" {
   type        = string
   description = "The ID of your tenant, provided by the Nebius AI team"
 }
 
-variable "project_id" {
+variable "iam_project_id" {
   type        = string
   description = "The ID of your project, provided by the Nebius AI team"
 }

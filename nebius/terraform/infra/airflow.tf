@@ -9,6 +9,6 @@ locals {
 
 resource "nebius_storage_v1_bucket" "airflow_logs_container" {
   name                  = local.airflow_container
-  parent_id             = var.project_id
+  parent_id             = var.iam_project_id
   count = var.deploy_airflow ? 1 : 0
 }

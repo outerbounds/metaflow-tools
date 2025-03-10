@@ -22,9 +22,6 @@ The templates are organized into two modules, `infra` and `services`.
 Before you do anything, create a TF vars file `FILE.tfvars` (`FILE` could be something else), with this content.
 
 ```text
-tenant_id = "" # you can get from your console
-project_id = "" # you can get from your console
-vpc_subnet_id = "" # you can get from your console
 storage_container_name = "[YOUR USERNAME]-metaflow-storage-container" # A bucket name should be unique across the region.
 ```
 
@@ -35,10 +32,14 @@ This is used to help generate unique resource names for:
 
 Note: these resources must be globally unique across all of Nebius.
 
-Next run to obtain IAM Nebius token
+Run `source ./.envrc.zsh` if you run bash, or `source ./.envrc.zsh` if you prefer zsh.
 
-```bash
-. ./environment.sh
+You can add tenant_id, project_id and vpc_subnet_id to `FILE.tfvars`
+
+```text
+tenant_id = "" # you can get from your console
+project_id = "" # you can get from your console
+vpc_subnet_id = "" # you can get from your console`
 ```
 
 Next, apply the `infra` module (creates Nebius AI cloud resources only).

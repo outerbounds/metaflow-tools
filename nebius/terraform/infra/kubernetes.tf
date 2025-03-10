@@ -1,8 +1,8 @@
 resource "nebius_mk8s_v1_cluster" "metaflow_kubernetes" {
-  parent_id           = var.project_id
+  parent_id           = var.iam_project_id
   name                = var.kubernetes_cluster_name
   control_plane = {
-    subnet_id = var.nebius_sub_network_id
+    subnet_id = var.vpc_subnet_id
     endpoints = {
         public_endpoint = {}
     }

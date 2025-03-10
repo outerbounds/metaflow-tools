@@ -1,5 +1,5 @@
 resource "nebius_msp_postgresql_v1alpha1_cluster" "metaflow_database_server" {
-  parent_id = var.project_id
+  parent_id = var.iam_project_id
   name = var.database_server_name
   bootstrap = {
     db_name = "metaflow"

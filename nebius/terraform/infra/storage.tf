@@ -1,10 +1,10 @@
 resource "nebius_storage_v1_bucket" "metaflow_storage_container" {
   name                  = var.storage_container_name
-  parent_id             = var.project_id
+  parent_id             = var.iam_project_id
 }
 
 resource "nebius_iam_v1_service_account" "metaflow_storage_account" {
-  parent_id             = var.project_id
+  parent_id             = var.iam_project_id
   name                  = var.storage_account_name
 }
 
@@ -12,7 +12,7 @@ resource "nebius_iam_v1_service_account" "metaflow_storage_account" {
 # 
 # data "nebius_iam_v1_group" "editor_group" {
 #   name      = "editors"
-#   parent_id = var.tenant_id
+#   parent_id = var.iam_tenant_id
 # }
 
 # resource "nebius_iam_v1_group_membership" "metaflow_storage_account_editor" {
