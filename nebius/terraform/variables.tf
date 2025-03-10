@@ -1,13 +1,12 @@
-variable "storage_container_name" {
+variable "org_prefix" {
   type = string
-  default = "metaflow-storage-container"
 }
 locals {
   # Keep these constant after initial "terraform apply"
-
-  metaflow_datastore_sysroot_nebius = "s3://${var.storage_container_name}/tf-full-stack-sysroot"
-  kubernetes_cluster_name = "metaflow-${terraform.workspace}"
-  database_server_name = "psql-metaflow-${terraform.workspace}"
+  storage_container_name = "${org_prefix}-metaflow-storage-container"
+  metaflow_datastore_sysroot_nebius = "s3://${storage_container_name}/tf-full-stack-sysroot"
+  kubernetes_cluster_name = "$metaflow-${terraform.workspace}"
+  database_server_name = "psql-${org_prefix}-metaflow-${terraform.workspace}"
   storage_account_name = "stmetaflow${terraform.workspace}"
 
   # Changeable after initial "terraform apply" (e.g. image upgrades, secret rotation)
@@ -47,6 +46,7 @@ variable "iam_tenant_id" {
   type        = string
   description = "The ID of your tenant, provided by the Nebius AI team"
 }
+
 
 variable "iam_project_id" {
   type        = string

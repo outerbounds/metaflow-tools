@@ -30,7 +30,7 @@ data "nebius_msp_postgresql_v1alpha1_cluster" "default" {
 data "nebius_storage_v1_bucket" "default" {
   depends_on = [module.infra] # refresh cluster state before reading
   parent_id  = var.iam_project_id
-  name       = var.storage_container_name
+  name       = local.storage_container_name
 }
 
 provider "kubernetes" {
@@ -61,7 +61,7 @@ module "infra" {
   vpc_subnet_id                           = var.vpc_subnet_id
   metaflow_database_server_admin_login    = local.metaflow_database_server_admin_login
   metaflow_database_server_admin_password = local.metaflow_db_password
-  storage_container_name                  = var.storage_container_name
+  storage_container_name                  = local.storage_container_name
   storage_account_name                    = local.storage_account_name
   kubernetes_cluster_name                 = local.kubernetes_cluster_name
   database_server_name                    = local.database_server_name
