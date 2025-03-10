@@ -3,3 +3,6 @@
 **/terraform.tfstate*
 **/kubeconfig_*
 !**/kubeconfig_template.yaml
+.DS_Store
+nebius/terraform/.last_selected_tenant
+nebius/terraform/.last_selected_project

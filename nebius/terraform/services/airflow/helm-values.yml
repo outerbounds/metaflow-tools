@@ -1,0 +1,27 @@
+executor: LocalExecutor
+
+# Default airflow tag to deploy
+defaultAirflowTag: ${airflow_version}
+
+# Airflow version (Used to make some decisions based on Airflow Version being deployed)
+airflowVersion: ${airflow_version}
+
+env:
+- name: AIRFLOW__LOGGING__REMOTE_LOGGING
+  value: "True"
+- name: AIRFLOW__LOGGING__REMOTE_BASE_LOG_FOLDER
+  value: 'wasb-logs'
+- name: AIRFLOW__LOGGING__REMOTE_LOG_CONN_ID
+  value: "aws_default"
+- name: AIRFLOW_CONN_AWS_DEFAULT
+  value: '{"login":"${nebius_account_name}"}'
+
+secret:
+- envName: AWS_ACCESS_KEY_ID
+  secretName: ${nebius_credentials_secret}
+  secretKey: AWS_ACCESS_KEY_ID
+- envName: AWS_SECRET_ACCESS_KEY
+  secretName: ${nebius_credentials_secret}
+  secretKey: AWS_SECRET_ACCESS_KEY
+
+webserverSecretKey: ${airflow_frenet_secret}
