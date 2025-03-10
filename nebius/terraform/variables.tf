@@ -1,8 +1,11 @@
+variable "storage_container_name" {
+  type = string
+  default = "metaflow-storage-container"
+}
 locals {
   # Keep these constant after initial "terraform apply"
-  storage_container_name = "metaflow-storage-container"
 
-  metaflow_datastore_sysroot_nebius = "s3://${local.storage_container_name}/tf-full-stack-sysroot"
+  metaflow_datastore_sysroot_nebius = "s3://${var.storage_container_name}/tf-full-stack-sysroot"
   kubernetes_cluster_name = "metaflow-${terraform.workspace}"
   database_server_name = "psql-metaflow-${terraform.workspace}"
   storage_account_name = "stmetaflow${terraform.workspace}"

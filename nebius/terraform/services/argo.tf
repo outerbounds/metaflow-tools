@@ -24,3 +24,32 @@ resource "null_resource" "argo-quick-start-installation" {
     command = local._kubectl_cmd
   }
 }
+
+resource "kubernetes_role" "executor" {
+  metadata {
+    name      = "executor"
+    namespace = "default"
+  }
+  rule {
+    api_groups = ["argoproj.io"]
+    resources  = ["workflowtaskresults"]
+    verbs      = ["create", "patch"]
+  }
+}
+
+resource "kubernetes_role_binding" "executor" {
+  metadata {
+    name      = "executor"
+    namespace = "default"
+  }
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "Role"
+    name      = "executor"
+  }
+  subject {
+    kind      = "ServiceAccount"
+    name      = "default"
+    namespace = "default"
+  }
+}

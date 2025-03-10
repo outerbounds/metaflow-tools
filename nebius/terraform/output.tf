@@ -13,12 +13,17 @@ There are three steps:
 STEP 1: Ensure you have sufficient access to these Nebius resources on your local workstation:
 
 - MK8S cluster ("${local.kubernetes_cluster_name}") ("Nebius mk8s")
-- Nebius Storage ("${local.storage_container_name}" in the storage account "${local.storage_account_name}")
+- Nebius Storage ("${var.storage_container_name}" in the storage account "${local.storage_account_name}")
 
 You can use "nebius profile create" as a sufficiently capabable account. To see the credentials for the service principal
 (created by terraform) that is capable, run this:
 
 $ terraform output -raw SERVICE_PRINCIPAL_CREDENTIALS
+
+Export AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in the environment.
+
+$ export AWS_ACCESS_KEY_ID=""
+$ export AWS_SECRET_ACCESS_KEY=""
 
 Use the credentials with "nebius profile create"
 
@@ -30,7 +35,7 @@ $ nebius mk8s cluster get-credentials --id ${data.nebius_mk8s_v1_cluster.default
 
 STEP 2: Configure Metaflow:
 
-Option 1: Create JSON config directly
+Create JSON config directly
 
 Copy config.json to ~/.metaflowconfig/config.json:
 
@@ -77,6 +82,7 @@ EOT
 }
 
 output "SERVICE_PRINCIPAL_CREDENTIALS" {
+  depends_on = [module.services]
   value = <<EOT
 AWS_ACCESS_KEY_ID=${var.aws_access_key_id}
 AWS_SECRET_ACCESS_KEY=${var.aws_secret_access_key}
