@@ -67,6 +67,10 @@ spec:
           {{- end }}
           env:
             {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+            {{- range .Values.uiBackend.env }}
+            - name: {{ .name | quote }}
+              value: {{ .value | quote }}
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
