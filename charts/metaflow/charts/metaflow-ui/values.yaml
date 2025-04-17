@@ -31,6 +31,16 @@ uiBackend:
     # requests:
     #   cpu: 100m
     #   memory: 128Mi
+  
+  volumes: []
+  # volumes:
+  #   - name: x
+  #     secret:
+  #       name: x
+  volumeMounts: []
+  # volumeMounts:
+  #   - mountPath: /x
+  #     name: x
 
   service:
     type: ClusterIP
@@ -38,6 +48,7 @@ uiBackend:
 
   replicaCount: 1
 
+  defaultMetastore: "s3"
   metaflowDatastoreSysRootS3: ""
     # The root S3 bucket prefix that will be used by metaflow
 
