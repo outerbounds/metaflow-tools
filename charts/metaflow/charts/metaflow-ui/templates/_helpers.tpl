@@ -56,7 +56,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{- define "metaflow-ui.labelsStatic" -}}
-{{ include "metaflow-ui.labels" . }}
+helm.sh/chart: {{ include "metaflow-ui.chart" . }}
 {{ include "metaflow-ui.selectorLabelsStatic" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
