@@ -1,7 +1,7 @@
 {{- if .Values.ingress.enabled -}}
 {{- $fullName := include "metaflow-service.fullname" . -}}
 {{- $svcPort := .Values.service.port -}}
-{{- $kubeVersion := default "1.14.0" (lookup "version" "") -}}
+{{- $kubeVersion := default "1.14.0" .Capabilities.KubeVersion.Version -}}
 {{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" $kubeVersion)) }}
   {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
   {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
