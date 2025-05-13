@@ -39,6 +39,9 @@ spec:
           {{- end }}
           env:
             {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
@@ -67,6 +70,9 @@ spec:
           {{- end }}
           env:
             {{- include "metaflow-service.metadatadbEnvVars" . | nindent 12 }}
+            {{- with .Values.env }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
