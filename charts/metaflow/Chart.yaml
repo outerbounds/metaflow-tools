@@ -7,7 +7,7 @@ dependencies:
     condition: metaflow-service.enabled
   - name: metaflow-ui
     repository: ""
-    version: 0.3.1
+    version: 0.3.0
     condition: metaflow-ui.enabled
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami

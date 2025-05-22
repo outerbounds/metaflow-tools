@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - js/fix-helm-chart-release
 
 jobs:
   release:
@@ -26,9 +27,16 @@ jobs:
       env:
         GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-    - name: Run chart-releaser
-      uses: helm/chart-releaser-action@v1.6.0
+    - name: Run sub charts
+      uses: helm/chart-releaser-action@v1.7.0
       with:
         charts_dir: charts/metaflow/charts
+      env:
+        CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+    - name: Release main chart
+      uses: helm/chart-releaser-action@v1.7.0
+      with:
+        charts_dir: charts/
       env:
         CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
