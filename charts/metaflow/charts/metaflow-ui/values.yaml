@@ -87,8 +87,10 @@ uiStatic:
     # - name: var_name
     #   value: "var_value"
 
-  # This default assumes the backend service is running in the same
-  # Make sure this is the public endpoint of backend service running on 8083 and not the internal k8s service endpoint
+  # This is the backend endpoint URL that must be accessible from
+  # the local workstation where users access the Metaflow UI. Note that UI requests
+  # to the backend are initiated from the user's browser, not from the frontend service.
+  # Traffic flow: Browser → Metaflow UI Frontend Service → Browser → Metaflow UI Backend Service
   metaflowUIBackendURL: ""
 
   service:
