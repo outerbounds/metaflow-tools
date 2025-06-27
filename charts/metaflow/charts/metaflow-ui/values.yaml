@@ -13,6 +13,14 @@ uiBackend:
     - name: MF_METADATA_DB_SSL_MODE
       value: prefer
 
+    # It's possible to define a configMap or secret to load environment variables:
+    # - name: AWS_ACCESS_KEY_ID
+    #  valueFrom:
+    #    secretKeyRef:
+    #      name: metaflow-aws-credentials
+    #      key: access_key_id
+
+
   envFrom: []
     # Example of loading environment variables from a ConfigMap and Secret:
     # - configMapRef:
@@ -37,6 +45,8 @@ uiBackend:
     port: 8083
 
   replicaCount: 1
+
+  metaflowDefaultDatastore: "s3"
 
   metaflowDatastoreSysRootS3: ""
     # The root S3 bucket prefix that will be used by metaflow
@@ -77,7 +87,10 @@ uiStatic:
     # - name: var_name
     #   value: "var_value"
 
-  # This default assumes the backend service is running in the same
+  # This is the backend endpoint URL that must be accessible from
+  # the local workstation where users access the Metaflow UI. Note that UI requests
+  # to the backend are initiated from the user's browser, not from the frontend service.
+  # Traffic flow: Browser → Metaflow UI Frontend Service → Browser → Metaflow UI Backend Service
   metaflowUIBackendURL: ""
 
   service:
