@@ -88,6 +88,7 @@ uiStatic:
     #   value: "var_value"
 
   # This default assumes the backend service is running in the same
+  # Make sure this is the public endpoint of backend service running on 8083 and not the internal k8s service endpoint
   metaflowUIBackendURL: ""
 
   service:
