@@ -70,7 +70,7 @@ spec:
             - name: METAFLOW_SERVICE_URL
               value: {{ .Values.uiBackend.metaflowServiceURL | quote }}
             - name: METAFLOW_DEFAULT_DATASTORE
-              value: "s3"
+              value: {{ .Values.uiBackend.metaflowDefaultDatastore | quote }}
             - name: METAFLOW_DEFAULT_METADATA
               value: "service"
             {{- include "metaflow-ui.metadatadbEnvVars" . | nindent 12 }}
