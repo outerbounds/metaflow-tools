@@ -42,6 +42,8 @@ spec:
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
       {{- end }}
       containers:
         - name: {{ .Chart.Name }}
