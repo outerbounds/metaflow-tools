@@ -1,8 +1,10 @@
+> **Note:** This repository is **not** for [Outerbounds](https://outerbounds.com) deployments. It is focused on **open-source (OSS) Metaflow** usage and tooling.
+> 
 [![](https://img.shields.io/badge/slack-@outerbounds-purple.svg?logo=slack )](http://slack.outerbounds.co/) 
  
 # ⚒️ Metaflow Admin Tools
 
-This repository contains various configuration files, tools and utilities for operating [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow documentation](https://docs.metaflow.org) for more information about Metaflow architecture. Top level folders are structured as follows:
+This repository contains various configuration files, tools and utilities for operating OSS [Metaflow](https://github.com/Netflix/metaflow) in production. See [Metaflow documentation](https://docs.metaflow.org) for more information about Metaflow architecture. Top level folders are structured as follows:
 
 ## Metaflow on AWS (/aws)
 ### Metaflow Cloudformation template
