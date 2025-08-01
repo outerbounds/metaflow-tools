@@ -66,7 +66,7 @@ Create the name of the service account to use
   value: {{ .Values.metadatadb.name | quote }}
 - name: MF_METADATA_DB_PORT
   value: {{ .Values.metadatadb.port | quote }}
-{{- if .Values.metadatadb.password  }}
+{{- if and (hasKey .Values "metadatadb") (hasKey .Values.metadatadb "password") (.Values.metadatadb.password) }}
 - name: MF_METADATA_DB_PSWD
   value: {{ .Values.metadatadb.password | quote }}
 {{- end }}
