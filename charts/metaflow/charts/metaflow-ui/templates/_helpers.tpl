@@ -107,7 +107,7 @@ Metadata DB Environment Variables
   value: {{ .Values.uiBackend.metadatadb.name | quote }}
 - name: MF_METADATA_DB_PORT
   value: {{ .Values.uiBackend.metadatadb.port | quote }}
-{{- if and .Values.uiBackend.metadatadb.password (ne .Values.uiBackend.metadatadb.password "") }}
+{{- if .Values.metadatadb.password  }}
 - name: MF_METADATA_DB_PSWD
   value: {{ .Values.uiBackend.metadatadb.password | quote }}
 {{- end }}
