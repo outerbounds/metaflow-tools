@@ -3,7 +3,7 @@ appVersion: v2.4.13
 description: A Helm chart to deploy Metadata Service for Metaflow
 name: metaflow-service
 type: application
-version: 0.2.1
+version: 0.2.2
 maintainers:
   - name: Savin Goyal
     email: savin@outerbounds.co
