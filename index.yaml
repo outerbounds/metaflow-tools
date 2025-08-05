@@ -3,6 +3,38 @@ entries:
   metaflow:
   - apiVersion: v2
     appVersion: v2.4.13
+    created: "2025-08-05T17:13:53.160059866Z"
+    dependencies:
+    - condition: metaflow-service.enabled
+      name: metaflow-service
+      repository: ""
+      version: 0.2.2
+    - condition: metaflow-ui.enabled
+      name: metaflow-ui
+      repository: ""
+      version: 0.3.2
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: ^14
+    description: Machine Learning platform
+    digest: 89dfb0283ee79b124d1ee3b9cff728fead8743bf0dc34dfb897c5d65f4faf2d9
+    home: https://metaflow.org
+    keywords:
+    - mlops
+    - metaflow
+    - metadata service
+    - metaflow ui
+    name: metaflow
+    sources:
+    - https://github.com/Netflix/metaflow
+    - https://github.com/outerbounds/metaflow-tools
+    type: application
+    urls:
+    - https://github.com/outerbounds/metaflow-tools/releases/download/metaflow-0.1.2/metaflow-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
+    appVersion: v2.4.13
     created: "2025-08-01T19:33:57.721485394Z"
     dependencies:
     - condition: metaflow-service.enabled
@@ -202,4 +234,4 @@ entries:
     urls:
     - https://github.com/outerbounds/metaflow-tools/releases/download/metaflow-ui-0.3.0/metaflow-ui-0.3.0.tgz
     version: 0.3.0
-generated: "2025-08-05T17:13:35.84441867Z"
+generated: "2025-08-05T17:13:53.16008398Z"
