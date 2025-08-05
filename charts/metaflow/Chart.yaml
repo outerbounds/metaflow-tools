@@ -5,7 +5,7 @@ dependencies:
     version: 0.2.2
     condition: metaflow-service.enabled
   - name: metaflow-ui
-    version: 0.3.1
+    version: 0.3.2
     condition: metaflow-ui.enabled
   - name: postgresql
     repository: https://charts.bitnami.com/bitnami
@@ -23,4 +23,4 @@ sources:
   - https://github.com/Netflix/metaflow
   - https://github.com/outerbounds/metaflow-tools
 type: application
-version: 0.1.1
+version: 0.1.2

@@ -1,0 +1,75 @@
+name: Helm Chart Tests
+
+on:
+  pull_request:
+    paths:
+      - 'charts/**'
+  workflow_dispatch:
+
+jobs:
+  validate-charts:
+    name: Validate Helm Charts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          version: v3.12.0
+
+      - name: Add Bitnami repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
+
+      - name: Update Helm repositories
+        run: helm repo update
+
+      - name: Build dependencies
+        run: |
+          cd charts/metaflow
+          helm dependency build
+          helm dependency update
+
+      - name: Lint charts
+        run: |
+          cd charts/metaflow
+          helm lint .
+
+          cd charts/metaflow-service
+          helm lint .
+
+          cd ../metaflow-ui
+          helm lint .
+
+      - name: Test template rendering
+        run: |
+          cd charts/metaflow
+
+          # Test with default values
+          helm template test-default . > /dev/null
+
+          # Test with all components enabled
+          helm template test-full . \
+            --set postgresql.enabled=true \
+            --set metaflow-service.enabled=true \
+            --set metaflow-ui.enabled=true > /dev/null
+
+          # Test with selective components
+          helm template test-selective . \
+            --set postgresql.enabled=true \
+            --set metaflow-service.enabled=true \
+            --set metaflow-ui.enabled=false > /dev/null
+
+      - name: Bug detection
+        run: |
+          cd charts/metaflow
+
+          # Check for the metadatadb password bug
+          TEMPLATE_OUTPUT=$(helm template test-bug . --set metaflow-ui.enabled=true)
+          if echo "$TEMPLATE_OUTPUT" | grep -q "\.Values\.metadatadb\.password"; then
+            echo "ERROR: Found bug in metaflow-ui helpers - using .Values.metadatadb.password instead of .Values.uiBackend.metadatadb.password"
+            exit 1
+          fi
+
+          echo "✓ Bug detection passed"
