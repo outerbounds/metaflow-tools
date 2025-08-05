@@ -138,6 +138,28 @@ entries:
   metaflow-ui:
   - apiVersion: v2
     appVersion: v2.4.13
+    created: "2025-08-05T17:13:35.844382551Z"
+    description: A Helm chart to deploy Metaflow UI components.
+    digest: 19532997e29be8b2b0284bed730bdbb732c2c91c021593bdaa90a70c68fe0bb7
+    icon: https://metaflow.org/images/metaflow.svg
+    keywords:
+    - metaflow ui
+    maintainers:
+    - email: savin@outerbounds.co
+      name: Savin Goyal
+    - email: oleg@outerbounds.co
+      name: Oleg Avdeev
+    name: metaflow-ui
+    sources:
+    - https://github.com/Netflix/metaflow-service
+    - https://github.com/Netflix/metaflow-ui
+    - https://github.com/outerbounds/metaflow-tools
+    type: application
+    urls:
+    - https://github.com/outerbounds/metaflow-tools/releases/download/metaflow-ui-0.3.2/metaflow-ui-0.3.2.tgz
+    version: 0.3.2
+  - apiVersion: v2
+    appVersion: v2.4.13
     created: "2025-08-01T19:33:39.971933221Z"
     description: A Helm chart to deploy Metaflow UI components.
     digest: a7269f68618df6ff17cea8972bc4ad1b884c8208deed0753595920eeebc47bf7
@@ -180,4 +202,4 @@ entries:
     urls:
     - https://github.com/outerbounds/metaflow-tools/releases/download/metaflow-ui-0.3.0/metaflow-ui-0.3.0.tgz
     version: 0.3.0
-generated: "2025-08-01T19:33:57.721505221Z"
+generated: "2025-08-05T17:13:35.84441867Z"
