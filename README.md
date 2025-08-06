@@ -27,7 +27,7 @@ This stack uses Kubernetes (Managed Service for Kubernetes in Nebius AI Cloud) f
 
 ## Metaflow services on Kubernetes (/k8s)
 ### Helm Charts (alpha)
-We provide Helm charts to deploy Metaflow Metadata service and UI in a K8S cluster. This way you can use Metaflow without any AWS-specific dependencies on AWS except for having a S3-compatible object storage engine available. You can find them under [k8s/helm/metaflow](./charts/metaflow) in this repository.
+We provide Helm charts to deploy Metaflow Metadata service and UI in a K8S cluster. This way you can use Metaflow without any AWS-specific dependencies on AWS except for having a S3-compatible object storage engine available. You can find them under [charts/metaflow](./charts/metaflow) in this repository.
 
 ## Cloud agnostic resources (/common)
 ### Sample Metaflow flow definitions
