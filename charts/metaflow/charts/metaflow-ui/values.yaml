@@ -67,7 +67,7 @@ uiStatic:
   image:
     name: public.ecr.aws/outerbounds/metaflow_ui
     pullPolicy: IfNotPresent
-    tag: "v1.3.3"
+    tag: "v1.3.14"
 
   podAnnotations: {}
 
