@@ -2,7 +2,7 @@ apiVersion: v2
 appVersion: v2.4.13
 dependencies:
   - name: metaflow-service
-    version: 0.2.2
+    version: 0.2.3
     condition: metaflow-service.enabled
   - name: metaflow-ui
     version: 0.3.2
@@ -23,4 +23,4 @@ sources:
   - https://github.com/Netflix/metaflow
   - https://github.com/outerbounds/metaflow-tools
 type: application
-version: 0.1.2
+version: 0.1.3
