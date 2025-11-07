@@ -49,9 +49,6 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           env:
-          {{- with .Values.uiBackend.env }}
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
             - name: UI_ENABLED
               value: "1"
             - name: PATH_PREFIX
@@ -72,7 +69,10 @@ spec:
               value: {{ .Values.uiBackend.metaflowDefaultDatastore | quote }}
             - name: METAFLOW_DEFAULT_METADATA
               value: "service"
-            {{- include "metaflow-ui.metadatadbEnvVars" . | nindent 12 }}
+          {{- include "metaflow-ui.metadatadbEnvVars" . | nindent 12 }}
+          {{- with .Values.uiBackend.env }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.uiBackend.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
