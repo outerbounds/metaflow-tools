@@ -598,7 +598,7 @@ Resources:
       DeleteAutomatedBackups: 'true'
       StorageType: 'gp2'
       Engine: 'postgres'
-      EngineVersion: '16.1'
+      EngineVersion: '16.6'
       MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:username}}' ]]
       MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref MyRDSSecret, ':SecretString:password}}' ]]
       VPCSecurityGroups:
