@@ -134,7 +134,7 @@ Mappings:
     ServiceName:
       value: 'metadata-ui-static'
     ImageUrl:
-      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.2.4'
+      value: 'public.ecr.aws/outerbounds/metaflow_ui:v1.3.14'
     ContainerPort:
       value: 3000
     ContainerCpu:
