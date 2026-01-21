@@ -1,0 +1,15 @@
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: metaflow-webhook
+  namespace: argo
+spec:
+  service:
+    ports:
+    - port: 12000
+      targetPort: 12000
+  webhook:
+    event:
+      port: "12000"
+      endpoint: /event
+      method: POST
