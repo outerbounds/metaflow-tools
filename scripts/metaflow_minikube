@@ -1,0 +1,503 @@
+#!/bin/bash
+set -euo pipefail
+
+# Usage helper
+usage() {
+  echo "Usage: $0 --install | --cleanup"
+  exit 1
+}
+
+# Check that exactly one parameter is provided.
+if [ "$#" -ne 1 ]; then
+  usage
+fi
+
+MODE="$1"
+
+########################################
+# Helm Repository Setup Function
+########################################
+setup_helm_repos() {
+  echo "Setting up Helm repositories..."
+  repos=(
+    "minio-s3=https://charts.min.io/"
+    "bitnami=https://charts.bitnami.com/bitnami"
+    "metaflow=https://outerbounds.github.io/metaflow-tools"
+    "argo=https://argoproj.github.io/argo-helm"
+  )
+  for repo in "${repos[@]}"; do
+    alias="${repo%%=*}"
+    url="${repo#*=}"
+    if helm repo list | awk '{print $1}' | grep -qx "$alias"; then
+      echo "Helm repo '$alias' already exists."
+    else
+      echo "Adding Helm repo '$alias'..."
+      helm repo add "$alias" "$url"
+    fi
+  done
+  helm repo update
+}
+
+########################################
+# Installation Functions (Installation Mode)
+########################################
+
+# Step 1: Check required commands and Python pip packages.
+check_dependencies() {
+  echo "Step 1: Checking dependencies..."
+  missing=false
+
+  # Check required commands
+  for cmd in minikube kubectl helm; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+      echo "✖ ERROR: $cmd is not installed or not in PATH."
+      missing=true
+    else
+      echo "✔ $cmd found."
+    fi
+  done
+
+  if [ "$missing" = true ]; then
+    echo "Please install the missing commands and re-run the script."
+    exit 1
+  fi
+
+  # Check pip packages: metaflow and kubernetes
+  echo ""
+  echo "Checking Python pip packages..."
+  for package in metaflow kubernetes; do
+    if ! python3 -m pip show "$package" >/dev/null 2>&1; then
+      echo "✖ $package not found. Installing..."
+      python3 -m pip install "$package"
+    else
+      echo "✔ $package is installed."
+    fi
+  done
+}
+
+# Step 2: Start Minikube cluster.
+start_minikube() {
+  echo "Step 2: Starting minikube cluster..."
+  cluster_status=$(minikube status --format "{{.Host}}" 2>/dev/null || echo "Stopped")
+  if [ "$cluster_status" == "Running" ]; then
+    echo "Minikube cluster is already running."
+  else
+    echo "Starting minikube with 6 CPUs and 10240 MB memory..."
+    minikube start --cpus 6 --memory 10240
+  fi
+}
+
+# Step 3: Deploy MinIO via Helm.
+deploy_minio() {
+  echo "Step 3: Deploying MinIO..."
+  helm upgrade --install minio-s3 minio-s3/minio \
+    --set resources.requests.memory=512Mi \
+    --set replicas=1 --set persistence.enabled=false \
+    --set mode=standalone \
+    --set rootUser=rootuser \
+    --set rootPassword=rootpass123 \
+    --set buckets[0].name=metaflow-test,buckets[0].policy=none,buckets[0].purge=false
+}
+
+# Step 4: Create Kubernetes secret for MinIO.
+create_minio_secret() {
+  echo "Step 4: Creating MinIO secret..."
+  kubectl apply -f <(cat <<EOF
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: minio-secret
+type: Opaque
+stringData:
+  AWS_ACCESS_KEY_ID: rootuser
+  AWS_SECRET_ACCESS_KEY: rootpass123
+  AWS_ENDPOINT_URL_S3: http://minio-s3.default.svc.cluster.local:9000
+EOF
+)
+}
+
+# Step 6: Install PostgreSQL via Helm.
+install_postgres() {
+  echo "Step 6: Installing PostgreSQL..."
+  helm upgrade --install postgresql bitnami/postgresql \
+    --set auth.username=metaflow \
+    --set auth.password=metaflow \
+    --set auth.database=metaflow
+}
+
+# Step 7: Port-forward MinIO service.
+portforward_minio() {
+  echo "Step 7: Port-forwarding MinIO on port 9000..."
+  echo "Waiting for MinIO pod to be ready..."
+  kubectl wait --for=condition=ready pod -l app=minio --timeout=300s
+  kubectl port-forward svc/minio-s3 9000 > /tmp/minio-portforward.log 2>&1 &
+  echo "MinIO port-forward running in the background (log: minio-portforward.log)."
+}
+
+
+
+# Step 9: Install Metaflow metadata service via Helm.
+install_metadata_service() {
+  echo "Step 9: Installing Metaflow metadata service..."
+  helm upgrade --install metaflow-service metaflow/metaflow-service \
+    --timeout 15m0s \
+    --set metadatadb.user=metaflow \
+    --set metadatadb.password=metaflow \
+    --set metadatadb.database=metaflow \
+    --set metadatadb.host=postgresql
+}
+
+# Step 10: Port-forward the metadata service.
+portforward_metadata() {
+  echo "Step 10: Port-forwarding metadata service on port 8080..."
+  echo "Waiting for metadata service pods to be ready..."
+  kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=metaflow-service --timeout=300s
+  
+  METAFLOW_SVC=$(kubectl get svc -l app.kubernetes.io/name=metaflow-service -o jsonpath='{.items[0].metadata.name}')
+  if [ -z "$METAFLOW_SVC" ]; then
+    echo "ERROR: Could not locate metaflow-service."
+    exit 1
+  fi
+  kubectl port-forward svc/"$METAFLOW_SVC" 8080:8080 > /tmp/metadata-service-portforward.log 2>&1 &
+  echo "Metadata service port-forward running on port 8080 (log: metadata-service-portforward.log)."
+}
+
+# Step 11: Install Argo Workflows.
+install_argo() {
+  echo "Step 11: Installing Argo Workflows..."
+  kubectl create ns argo || echo "Namespace 'argo' already exists."
+  kubectl apply -n argo -f https://github.com/argoproj/argo-workflows/releases/latest/download/quick-start-postgres.yaml
+  kubectl apply -f <(cat <<EOF
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: argo-workflowtaskresults-role
+  namespace: default
+rules:
+  - apiGroups: ["argoproj.io"]
+    resources: ["workflowtaskresults"]
+    verbs: ["create", "patch", "get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: default-argo-workflowtaskresults-binding
+  namespace: default
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default
+roleRef:
+  kind: Role
+  name: argo-workflowtaskresults-role
+  apiGroup: rbac.authorization.k8s.io
+EOF
+)
+}
+
+# Step 12: Install Argo Events.
+install_argo_events() {
+  echo "Step 12: Installing Argo Events..."
+  helm upgrade --create-namespace --install argo-events argo/argo-events \
+    --namespace argo-events \
+    -f <(cat <<EOF
+configs:
+  jetstream:
+    versions:
+      - configReloaderImage: natsio/nats-server-config-reloader:latest
+        metricsExporterImage: natsio/prometheus-nats-exporter:latest
+        natsImage: nats:latest
+        startCommand: /nats-server
+        version: latest
+      - configReloaderImage: natsio/nats-server-config-reloader:latest
+        metricsExporterImage: natsio/prometheus-nats-exporter:latest
+        natsImage: nats:2.9.15
+        startCommand: /nats-server
+        version: 2.9.15
+
+controller:
+  name: controller-manager
+  rbac:
+    enabled: true
+    namespaced: false
+  resources:
+    limits:
+      cpu: 200m
+      memory: 192Mi
+    requests:
+      cpu: 200m
+      memory: 192Mi
+  serviceAccount:
+    create: true
+    name: argo-events-events-controller-sa
+
+crds:
+  keep: true
+
+extraObjects:
+  - apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: operate-workflow-sa
+      namespace: default
+
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: operate-workflow-role
+      namespace: default
+    rules:
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - workflows
+          - workflowtemplates
+          - cronworkflows
+          - clusterworkflowtemplates
+        verbs:
+          - "*"
+
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: operate-workflow-role-binding
+      namespace: default
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: operate-workflow-role
+    subjects:
+      - kind: ServiceAccount
+        name: operate-workflow-sa
+
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: Role
+    metadata:
+      name: view-events-role
+      namespace: default
+    rules:
+      - apiGroups:
+          - argoproj.io
+        resources:
+          - eventsources
+          - eventbuses
+          - sensors
+        verbs:
+          - get
+          - list
+          - watch
+
+  - apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: view-events-role-binding
+      namespace: default
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: Role
+      name: view-events-role
+    subjects:
+      - kind: ServiceAccount
+        name: argo-workflows
+        namespace: argo-workflows
+EOF
+)
+}
+
+# Step 13: Create webhook EventSource and EventBus.
+create_event_source() {
+  echo "Step 13: Creating webhook event source and event bus..."
+  kubectl apply -f <(cat <<EOF
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventBus
+metadata:
+  name: default
+  namespace: default
+spec:
+  jetstream:
+    version: 2.9.15
+    containerTemplate:
+      resources:
+        limits:
+          cpu: 100m
+          memory: 128Mi
+        requests:
+          cpu: 100m
+          memory: 128Mi
+---
+apiVersion: argoproj.io/v1alpha1
+kind: EventSource
+metadata:
+  name: argo-events-webhook
+  namespace: default
+spec:
+  template:
+    container:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 50Mi
+        limits:
+          cpu: 50m
+          memory: 50Mi
+  service:
+    type: NodePort
+    ports:
+      - port: 12000
+        targetPort: 12000
+  webhook:
+    metaflow-event:
+      port: "12000"
+      endpoint: /metaflow-event
+      method: POST
+EOF
+)
+}
+
+# Step 14: Install Metaflow UI.
+install_metaflow_ui() {
+  echo "Step 14: Installing Metaflow UI..."
+
+
+  helm upgrade --install metaflow-ui metaflow/metaflow-ui \
+    --timeout 15m0s \
+    -f <(cat <<EOF
+uiBackend:
+  metadatadb:
+    host: postgresql
+    user: metaflow
+    name: metaflow
+    password: metaflow
+  metaflowDatastoreSysRootS3: s3://metaflow-test
+  metaflowS3EndpointURL: http://minio-s3.default.svc.cluster.local:9000
+  env:
+    - name: AWS_ACCESS_KEY_ID
+      value: rootuser
+    - name: AWS_SECRET_ACCESS_KEY
+      value: rootpass123
+uiStatic:
+  metaflowUIBackendURL: http://localhost:8083/api
+EOF
+)
+}
+
+# Step 15: Port-forward Metaflow UI backend and static services.
+portforward_metaflow_ui() {
+  echo "Step 15: Port-forwarding Metaflow UI services..."
+  echo "Waiting for Metaflow UI pods to be ready..."
+  kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=metaflow-ui --timeout=300s
+  kubectl wait --for=condition=ready pod -l app.kubernetes.io/name=metaflow-ui-static --timeout=300s
+  
+  METAFLOW_UI_BACKEND=$(kubectl get svc -l app.kubernetes.io/name=metaflow-ui -o jsonpath='{.items[0].metadata.name}')
+  if [ -z "$METAFLOW_UI_BACKEND" ]; then
+    echo "ERROR: Metaflow UI backend service not found."
+    exit 1
+  fi
+  kubectl port-forward svc/"$METAFLOW_UI_BACKEND" 8083:8083 > /tmp/metaflow-ui-backend.log 2>&1 &
+  echo "Metaflow UI backend port-forward running on port 8083 (log: metaflow-ui-backend.log)."
+
+  METAFLOW_UI_STATIC=$(kubectl get svc -l app.kubernetes.io/name=metaflow-ui-static -o jsonpath='{.items[0].metadata.name}')
+  if [ -z "$METAFLOW_UI_STATIC" ]; then
+    echo "ERROR: Metaflow UI static service not found."
+    exit 1
+  fi
+  kubectl port-forward svc/"$METAFLOW_UI_STATIC" 3000:3000 > /tmp/metaflow-ui-static.log 2>&1 &
+  echo "Metaflow UI static port-forward running on port 3000 (log: metaflow-ui-static.log)."
+}
+
+# Step 16: Create Metaflow configuration file.
+create_metaflow_config() {
+  echo "Step 16: Creating Metaflow config file..."
+  CONFIG_DIR="$HOME/.metaflowconfig"
+  mkdir -p "$CONFIG_DIR"
+  cat > "$CONFIG_DIR/config_minikube.json" <<EOF
+{
+  "METAFLOW_DATASTORE_SYSROOT_S3": "s3://metaflow-test",
+  "METAFLOW_DEFAULT_DATASTORE": "s3",
+  "METAFLOW_DEFAULT_METADATA": "service",
+  "METAFLOW_SERVICE_URL": "http://localhost:8080",
+  "METAFLOW_SERVICE_INTERNAL_URL": "http://metaflow-service.default.svc.cluster.local:8080",
+  "METAFLOW_KUBERNETES_SECRETS": "minio-secret",
+  "METAFLOW_KUBERNETES_NAMESPACE": "default",
+  "METAFLOW_ARGO_EVENTS_EVENT": "metaflow-event",
+  "METAFLOW_ARGO_EVENTS_EVENT_BUS": "default",
+  "METAFLOW_ARGO_EVENTS_EVENT_SOURCE": "argo-events-webhook",
+  "METAFLOW_ARGO_EVENTS_SERVICE_ACCOUNT": "operate-workflow-sa",
+  "METAFLOW_ARGO_EVENTS_WEBHOOK_AUTH": "service",
+  "METAFLOW_ARGO_EVENTS_WEBHOOK_URL": "http://argo-events-webhook-eventsource-svc:12000/metaflow-event"
+}
+EOF
+  echo "Metaflow config created at $CONFIG_DIR/config_minikube.json"
+}
+
+# Step 7 (also repeated): Set METAFLOW_PROFILE environment variable.
+set_metaflow_profile() {
+  echo "Setting METAFLOW_PROFILE environment variable..."
+  export METAFLOW_PROFILE=minikube
+  echo "METAFLOW_PROFILE is set to $METAFLOW_PROFILE"
+}
+
+# Final Step: Print ready message.
+print_ready_message() {
+  cat <<'EOF'
+================ Metaflow Environment Setup ================
+Copy and run the following command in your terminal to set up your environment:
+
+export METAFLOW_PROFILE=minikube && \
+export AWS_ACCESS_KEY_ID=rootuser && \
+export AWS_SECRET_ACCESS_KEY=rootpass123 && \
+export AWS_ENDPOINT_URL_S3=http://localhost:9000 && \
+echo 'You are good to start using metaflow!'
+
+============================================================
+EOF
+}
+
+########################################
+# Cleanup Function (Cleanup Mode)
+########################################
+
+cleanup_minikube() {
+  echo "Stopping minikube cluster..."
+  minikube stop
+  echo "Deleting minikube cluster..."
+  minikube delete --all --purge
+  echo "Removing minikube configuration and cache..."
+  rm -rf ~/.minikube
+  echo "Cleanup complete."
+}
+
+########################################
+# Main execution based on mode.
+########################################
+
+case "$MODE" in
+  --install)
+    check_dependencies
+    start_minikube
+    setup_helm_repos
+    deploy_minio
+    create_minio_secret
+    install_postgres
+    install_metadata_service
+    install_argo
+    install_argo_events
+    create_event_source
+    install_metaflow_ui
+    create_metaflow_config
+    set_metaflow_profile
+    portforward_minio
+    portforward_metadata
+    portforward_metaflow_ui
+    print_ready_message
+    ;;
+  --cleanup)
+    cleanup_minikube
+    ;;
+  *)
+    usage
+    ;;
+esac
