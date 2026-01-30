@@ -30,6 +30,8 @@ spec:
       {{- if .Values.dbMigrations.runOnStart }}
       initContainers:
         - name: db-migrations
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           command:
           - "/opt/latest/bin/python3"
