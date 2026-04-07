@@ -5,6 +5,10 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "metaflow-ui.labels" . | nindent 4 }}
+  {{- with .Values.uiBackend.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.uiBackend.service.type }}
   ports:
